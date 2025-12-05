@@ -1,26 +1,14 @@
-#!/bin/bash -xe
+#!/bin/bash 
 
-function die { echo "${@}" 1>&2 ; exit 2; }
+# set -xe
 
-set -o pipefail
+# function die { echo "${@}" 1>&2 ; exit 2; }
 
-while [ -f /root/firstboot.sh ] ; do
-    echo "Waiting on firstboot to complete"
-    sleep 1
-done
+# set -o pipefail
 
-# and check that it at least left the yum repos in a good state
-if [ -z "$(yum list --quiet ansible 2>/dev/null)" ] ; then
-    die "firstboot failed to properly configure yum"
-fi
+yum install -y python36-oci-cli || exit 0
 
-
-#yum install -y java-1.8.0-openjdk
-#yum install -y docker-credential-ocir
-# pip3 install oci-cli
-yum install -y python36-oci-cli
-
-mkdir -p /var/lib/kubelet
-mkdir -p /root/.docker
-ln -s /var/lib/kubelet/config.json /root/.docker/config.json
-/root/docker_login.sh || { echo docker login failed ; exit 1; }
+mkdir -p /var/lib/kubelet || exit 0
+mkdir -p /root/.docker || exit 0
+ln -s /var/lib/kubelet/config.json /root/.docker/config.json || exit 0
+/root/docker_login.sh || { echo docker login failed ; exit 0; }

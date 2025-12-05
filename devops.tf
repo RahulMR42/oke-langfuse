@@ -29,7 +29,7 @@ module "devops_setup" {
 # Setup the DevOps project cluster environment when using DevOps
 module "devops_target_cluster_env" {
   source         = "./modules/devops/environment"
-  project_id     = module.devops_setup[0].project_id
+  project_id     = module.devops_setup.project_id
   target_cluster = oci_containerengine_cluster.oci_oke_cluster
   defined_tags   = var.defined_tags
 }
@@ -46,37 +46,50 @@ module "devops_policies" {
   }
 }
 
-## Code repo with build scripts
-module "devops_code_repo" {
-  source      = "./modules/devops/repository"
-  project_id  = module.devops_setup.project_id
-  name        = "oke-langfuse"
-  description = "Langfuse deployment on OKE"
-}
+# ## Code repo with build scripts
+# module "devops_code_repo" {
+#   source      = "./modules/devops/repository"
+#   project_id  = module.devops_setup.project_id
+#   name        = "oke-langfuse"
+#   description = "Langfuse deployment on OKE"
+# }
 
-resource "null_resource" "clone_repo" {
+# output "repo" {
+#   value = module.devops_code_repo
+# }
 
-  # build and deploy OCI GenAI Gateway
-  provisioner "local-exec" {
-    command = <<-EOT
-    git clone 
-    EOT
-    # Optional arguments:
-    when       = create
-    on_failure = fail # or "continue"
-    environment = {
-      REGION                 = var.region
-      CLUSTER_ID             = var.cluster_id
-      AUTH_TYPE              = "INSTANCE_PRINCIPAL"
-      MODULE_PATH            = "${path.module}"
-      BASTION_SESSION_ID     = var.bastion_session_id
-      COMPARTMENT_ID         = var.compartment_id
-      TENANCY_NAMESPACE      = data.oci_objectstorage_namespace.ns.namespace
-      OCI_GENAI_GATEWAY_TAG  = var.oci_genai_gateway_tag
-      LANGFUSE_K8S_NAMESPACE = "langfuse"
-    }
-  }
-  depends_on = [
-    local_file.sock5_privatekey
-  ]
-}
+# resource "null_resource" "clone_repo" {
+
+#   # build and deploy OCI GenAI Gateway
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#     set -ex
+#     pwd
+
+#     # git clone https://github.com/streamnsight/oke-langfuse.git
+#     # pushd oke-langfuse
+#     git remote | grep oci || git remote add oci $OCI_LANGFUSE_REPO_URL
+#     GIT_SSH_COMMAND="ssh -v" git push oci main
+#     # popd
+#     EOT
+#     # Optional arguments:
+#     when       = create
+#     on_failure = fail # or "continue"
+#     environment = {
+#       OCI_LANGFUSE_REPO_URL = module.devops_code_repo.repo.http_url
+#       # REGION                 = var.region
+#       # CLUSTER_ID             = var.cluster_id
+#       # AUTH_TYPE              = "INSTANCE_PRINCIPAL"
+#       # MODULE_PATH            = "${path.module}"
+#       # BASTION_SESSION_ID     = var.bastion_session_id
+#       # COMPARTMENT_ID         = var.compartment_id
+#       # TENANCY_NAMESPACE      = data.oci_objectstorage_namespace.ns.namespace
+#       # OCI_GENAI_GATEWAY_TAG  = var.oci_genai_gateway_tag
+#       # LANGFUSE_K8S_NAMESPACE = "langfuse"
+#     }
+#   }
+#   depends_on = [
+#     # local_file.sock5_privatekey
+#     module.devops_code_repo
+#   ]
+# }

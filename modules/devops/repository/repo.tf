@@ -5,7 +5,11 @@ resource "oci_devops_repository" "repository" {
   repository_type = "HOSTED"
 
   #Optional
-  default_branch = "main"
+  default_branch = "refs/heads/main"
   defined_tags   = var.defined_tags
   description    = var.description
+
+  lifecycle {
+    ignore_changes = [defined_tags]
+  }
 }

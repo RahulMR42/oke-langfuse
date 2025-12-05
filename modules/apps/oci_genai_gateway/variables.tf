@@ -10,17 +10,21 @@ variable "region" {
   type = string
 }
 
+variable "deploy_id" {
+  type = string
+}
+
 variable "oci_genai_gateway_tag" {
   type = string
 }
 
-variable "bastion_session_id" {
-  type = string
-}
+# variable "bastion_session_id" {
+#   type = string
+# }
 
-variable "bastion_session_private_key_content" {
-  type = string
-}
+# variable "bastion_session_private_key_content" {
+#   type = string
+# }
 
 variable "cluster_id" {
   type = string

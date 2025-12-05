@@ -6,7 +6,7 @@ locals {
   ]
 }
 
-resource "oci_containerengine_addon" "cluster_autoscaler_addon" {
+resource "oci_containerengine_addon" "metrics_server_addon" {
   count = var.enabled ? 1 : 0
   #Required
   addon_name                       = "KubernetesMetricsServer"

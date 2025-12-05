@@ -63,7 +63,7 @@ resource "oci_psql_db_system" "langfuse_postgres" {
     subnet_id = var.use_existing_vcn ? local.node_pools[0]["subnet"] : oci_core_subnet.oke_nodepool_subnet[0].id
   }
   #patch_operations = <<Optional value not found in discovery>>
-  shape = "PostgreSQL.VM.Standard.E6.Flex"
+  shape = var.postgresql_shape
   source {
     #backup_id = <<Optional value not found in discovery>>
     #is_having_restore_config_overrides = <<Optional value not found in discovery>>

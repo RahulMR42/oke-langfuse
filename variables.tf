@@ -50,7 +50,7 @@ variable "cluster_compartment_id" {
 }
 
 variable "cluster_name" {
-  default = "OKE Cluster"
+  default = "Langfuse Cluster"
 }
 
 variable "is_enhanced_cluster" {
@@ -431,4 +431,9 @@ variable "idcs_app_id" {
 variable "oci_genai_gateway_tag" {
   type    = string
   default = "581e3cb7150404d80b35f7875f0d28d1510d6de8"
+}
+
+variable "postgresql_shape" {
+  type = string
+  default = "PostgreSQL.VM.Standard.E5.Flex"
 }
