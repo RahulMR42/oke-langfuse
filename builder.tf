@@ -201,78 +201,21 @@ resource "null_resource" "create_langfuse_secrets" {
     inline = [
       <<EOF
             ${templatefile("./scripts/create_langfuse_secrets.sh", {
-      encryption_key      = random_string.langfuse_password_encryption_key.result
-      salt                = random_string.langfuse_password_encryption_salt.result
-      nextauth_secret     = random_string.langfuse_next_auth_secret.result
-      clickhouse_password = random_string.langfuse_clickhouse_password.result
-      redis_password      = random_string.langfuse_redis_password.result
-      client_id           = local.idcs_client_id
-      client_secret       = local.idcs_client_secret
-      issuer              = local.idcs_domain_url
-      s3_access_key       = var.langfuse_s3_access_key
-      s3_secret_key       = var.langfuse_s3_secret_key
-      postgres_password   = random_string.postgres_password.result
-      database_url        = "postgresql://langfuse:${random_string.postgres_password.result}@${local.psql_endpoint.fqdn}:${local.psql_endpoint.port}/postgres?sslmode=verify-full&sslrootcert=/secrets/db-keystore/CaCertificate-langfuse.pub"
-})}
+            encryption_key      = random_string.langfuse_password_encryption_key.result
+            salt                = random_string.langfuse_password_encryption_salt.result
+            nextauth_secret     = random_string.langfuse_next_auth_secret.result
+            clickhouse_password = random_string.langfuse_clickhouse_password.result
+            redis_password      = random_string.langfuse_redis_password.result
+            client_id           = local.idcs_client_id
+            client_secret       = local.idcs_client_secret
+            issuer              = local.idcs_domain_url
+            s3_access_key       = var.langfuse_s3_access_key
+            s3_secret_key       = var.langfuse_s3_secret_key
+            postgres_password   = random_string.postgres_password.result
+            database_url        = "postgresql://langfuse:${random_string.postgres_password.result}@${local.psql_endpoint.fqdn}:${local.psql_endpoint.port}/postgres?sslmode=verify-full&sslrootcert=/secrets/db-keystore/CaCertificate-langfuse.pub"
+        })}
         EOF
-]
-# inline = [<<EOF
-#     #!/bin/bash
-#     set -e -o pipefail
-
-#     # langfuse password hashing
-#     kubectl get secret langfuse -n langfuse \
-#     && kubectl delete secret langfuse -n langfuse
-
-#     kubectl create secret generic langfuse \
-#         --namespace langfuse \
-#         --from-literal="encryption-key"="${random_string.langfuse_password_encryption_key.result}" \
-#         --from-literal="salt"="${random_string.langfuse_password_encryption_salt.result}" \
-#         --from-literal="nextauth-secret"="${random_string.langfuse_next_auth_secret.result}" \
-#         --from-literal="clickhouse-password"="${random_string.langfuse_clickhouse_password.result}" \
-#         --from-literal="redis-password"="${random_string.langfuse_redis_password.result}"
-
-#     # langfuse IDCS secrets
-#     kubectl get secret langfuse-idcs -n langfuse \
-#     && kubectl delete secret langfuse-idcs -n langfuse
-
-#     kubectl create secret generic langfuse-idcs \
-#         --namespace langfuse \
-#         --from-literal="client-id"="${local.idcs_client_id}" \
-#         --from-literal="client-secret"="${local.idcs_client_secret}" \
-#         --from-literal="issuer"="${local.idcs_domain_url}" \
-#         --from-literal="name"="Oracle IDCS"
-
-#     # Langfuse Object Storage access keys
-#     kubectl get secret langfuse-s3 -n langfuse \
-#     && kubectl delete secret langfuse-s3 -n langfuse
-
-#     kubectl create secret generic langfuse-s3 \
-#         --namespace langfuse \
-#         --from-literal="s3-access-key"="${var.langfuse_s3_access_key}" \
-#         --from-literal="s3-secret-key"="${var.langfuse_s3_secret_key}"
-
-#     # langfuse Postgres cert
-#     kubectl get secret langfuse-postgres-cert -n langfuse \
-#     && kubectl delete secret langfuse-postgres-cert -n langfuse
-
-#     kubectl create secret generic langfuse-postgres-cert \
-#         --namespace langfuse \
-#         --from-file=CaCertificate-langfuse.pub
-
-#     rm -f CaCertificate-langfuse.pub
-
-#     # langfuse postgres password and connection string
-#     kubectl get secret langfuse-postgres -n langfuse \
-#     && kubectl delete secret langfuse-postgres -n langfuse
-
-#     kubectl create secret generic langfuse-postgres \
-#         --namespace langfuse \
-#         --from-literal="postgres-password"="${random_string.postgres_password.result}" \
-#         --from-literal="database-url"="postgresql://langfuse:${random_string.postgres_password.result}@${local.psql_endpoint.fqdn}:${local.psql_endpoint.port}/postgres?sslmode=verify-full&sslrootcert=/secrets/db-keystore/CaCertificate-langfuse.pub"
-
-#     EOF
-# ]
+    ]
 }
 
 
@@ -280,4 +223,13 @@ depends_on = [
   null_resource.builder_run,
   oci_containerengine_node_pool.oci_oke_node_pool,
 ]
+}
+
+resource "null_resource" "create_langfuse_lb" {
+    # TODO 
+    # create the public load balancer, 
+    # fetch the IP, 
+    # create the certificate for the LB based on IP, 
+    # update the helm chart value for LANGFUSE_HOSTNAME
+    # update the IDCS app with the URL for login redirect
 }
