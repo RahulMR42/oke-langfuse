@@ -28,18 +28,18 @@ spec:
         imagePullPolicy: Always
         securityContext:
           allowPrivilegeEscalation: false
+        resources:
+          requests:
+            memory: "800Mi"
+            cpu: "70m"
+          limits:
+            memory: "2048Mi"
+            cpu: "200m"
         # resizePolicy:
         # - resourceName: cpu
         #   restartPolicy: NotRequired # Default, but explicit here
         # - resourceName: memory
         #   restartPolicy: RestartContainer
-        resources:
-          limits:
-            memory: "1024Mi"
-            cpu: "100m"
-          requests:
-            memory: "200Mi"
-            cpu: "70m"
         ports:
         - containerPort: 8088
           protocol: TCP
@@ -74,3 +74,25 @@ data:
   AUTH_TYPE: "${AUTH_TYPE}"
   OCI_REGION: "${REGION}"
   OCI_COMPARTMENT: "${COMPARTMENT_ID}"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: oci-genai-gateway
+  labels:
+    app: oci-genai-gateway
+    app.kubernetes.io/name: oci-genai-gateway
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: oci-genai-gateway
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75

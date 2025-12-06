@@ -52,14 +52,46 @@ variable "redis_hostname" {
   type = string
 }
 
-variable "bastion_session_id" {
-  type = string
-}
+# variable "bastion_session_id" {
+#   type = string
+# }
 
-variable "bastion_session_private_key_content" {
-  type = string
-}
+# variable "bastion_session_private_key_content" {
+#   type = string
+# }
 
 variable "cluster_id" {
   type = string
+}
+
+variable "deploy_id" {
+  type = string
+}
+
+variable "langfuse_helm_chart_version" {
+  type    = string
+  default = "1.5.3"
+}
+
+variable "defined_tags" {
+  type    = any
+  default = null
+}
+
+variable "devops_project_id" {
+  type = string
+}
+
+variable "devops_environment_id" {
+  type = string
+}
+
+variable "force_deployment" {
+  type    = bool
+  default = false
+}
+
+variable "oci_profile" {
+  type    = string
+  default = null
 }

@@ -5,3 +5,5 @@ terraform.tfstate.backup
 test.tfvars
 *.zip
 terraform.tfvars
+CaCertificate-langfuse.pub
+kubeconfig

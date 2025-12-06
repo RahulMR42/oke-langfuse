@@ -535,7 +535,7 @@ variables:
     type: number
     minimum: 0
     maximum: 256
-    default: 1
+    default: 3
     title: Minimum Number of Nodes
     description: Minimum number of nodes in the pool. Set to 0 to allow scaling the pool down completely.
     required: true

@@ -1,14 +1,14 @@
 #!/bin/bash 
 
-# set -xe
+set -xe
 
-# function die { echo "${@}" 1>&2 ; exit 2; }
+function die { echo "${@}" 1>&2 ; exit 2; }
 
-# set -o pipefail
+set -o pipefail
 
-yum install -y python36-oci-cli || exit 0
+yum install -y python36-oci-cli
 
-mkdir -p /var/lib/kubelet || exit 0
-mkdir -p /root/.docker || exit 0
-ln -s /var/lib/kubelet/config.json /root/.docker/config.json || exit 0
-/root/docker_login.sh || { echo docker login failed ; exit 0; }
+mkdir -p /var/lib/kubelet
+mkdir -p /root/.docker
+ln -s /var/lib/kubelet/config.json /root/.docker/config.json
+/root/docker_login.sh || { echo docker login failed ; exit 1; }

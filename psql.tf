@@ -85,10 +85,17 @@ data "oci_psql_db_system_connection_detail" "psql_connection_detail" {
 
 locals {
   psql_cert     = data.oci_psql_db_system_connection_detail.psql_connection_detail.ca_certificate
-  psql_endpoint = data.oci_psql_db_system_connection_detail.psql_connection_detail.primary_db_endpoint
+  psql_endpoint = data.oci_psql_db_system_connection_detail.psql_connection_detail.primary_db_endpoint[0]
 }
 
+output "psql" {
+  value = local.psql_endpoint
+}
 
+resource "local_file" "langfuse_postgres_cert" {
+  content  = data.oci_psql_db_system_connection_detail.psql_connection_detail.ca_certificate
+  filename = "${path.module}/CaCertificate-langfuse.pub"
+}
 
 # # security list to allow access from any node pool subnet
 # resource "oci_core_security_list" "psql_sec_list" {

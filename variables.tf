@@ -404,25 +404,29 @@ variable "create_bastion" {
   type = bool
 }
 
-variable "s3_client_id" {
+variable "langfuse_s3_access_key" {
   type      = string
   sensitive = true
 }
 
-variable "s3_client_secret" {
+variable "langfuse_s3_secret_key" {
   type      = string
   sensitive = true
 }
 
-variable "idcs_client_id" {
-  type      = string
-  sensitive = true
+variable "idcs_domain_url" {
+  type = string
 }
 
-variable "idcs_client_secret" {
-  type      = string
-  sensitive = true
-}
+# variable "idcs_client_id" {
+#   type      = string
+#   sensitive = true
+# }
+
+# variable "idcs_client_secret" {
+#   type      = string
+#   sensitive = true
+# }
 
 variable "idcs_app_id" {
   type = string
@@ -434,6 +438,16 @@ variable "oci_genai_gateway_tag" {
 }
 
 variable "postgresql_shape" {
-  type = string
+  type    = string
   default = "PostgreSQL.VM.Standard.E5.Flex"
+}
+
+variable "redis_node_count" {
+  type    = string
+  default = "1"
+}
+
+variable "redis_node_memory" {
+  type    = string
+  default = "16"
 }

@@ -38,7 +38,7 @@ variable "devops_environment_id" {
   type = string
 }
 variable "defined_tags" {
-  type = any
+  type    = any
   default = {}
 }
 

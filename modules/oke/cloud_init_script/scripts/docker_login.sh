@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-# set -o pipefail
+set -o pipefail
 
 cred_helper_call() {
     ocir_url=$1

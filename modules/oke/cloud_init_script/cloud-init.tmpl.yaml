@@ -47,10 +47,9 @@ touch /var/run/.oke-default-cloud-init
 
 bash /var/run/oke-init.sh
 
-# bash /var/run/docker-credential-helper-init.sh || exit 0
-# systemctl restart kubelet
+bash /var/run/docker-credential-helper-init.sh
+systemctl restart kubelet
 
-# systemctl daemon-reload
-# systemctl enable run_before_shutdown.service
+systemctl daemon-reload
  
 --MIMEBOUNDARY--

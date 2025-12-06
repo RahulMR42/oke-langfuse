@@ -2,8 +2,32 @@
 
 set -e -o pipefail
 
+cleanup_on_error() {
+    echo "An error occurred. Performing cleanup..."
+    # Add your cleanup commands here
+    rm -f ~/langfuse
+    podman system prune --all --volumes --force && podman rmi --all
+}
+
+trap cleanup_on_error ERR
+
+# run as root with root env
+# try to increase file limit as it is an issue when building the langfuse image
+sudo -i <<'AS_SU'
+echo -e "\nDefaultLimitNOFILE=65535" >> /etc/systemd/user.conf
+echo -e "\nDefaultLimitNOFILE=65535" >> /etc/systemd/system.conf
+echo -e "\n* hard nofile 65535" >>  /etc/security/limits.conf
+echo -e "\n* soft nofile 65535" >>  /etc/security/limits.conf
+AS_SU
+
 # set new limits
-sudo ulimit -n 4096
+sudo ulimit -n -H 65535
+sudo ulimit -n -S 65535
+ulimit -n -H 65535
+ulimit -n -S 65535
+
+# validate it worked
+ulimit -a
 
 # install dependencies
 ## OCI CLI
@@ -54,11 +78,11 @@ podman manifest inspect ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/oci-
 || oci --auth instance_principal artifacts container repository create \
     --compartment-id ${COMPARTMENT_ID} \
     --display-name ${DEPLOY_ID}/oci-genai-gateway \
-    --is-public false \
+    --is-public true \
 || echo "already exists"
 
 # build for this platform. Note we use the same compute image as the OKE nodes for this instance, so we're building for the OKE platform being deployed.
-podman build --ulimit=nofile=4096:4096 --platform=${PLATFORM} -t ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/oci-genai-gateway:oci .
+podman build --platform=${PLATFORM} -t ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/oci-genai-gateway:oci .
 
 ## push image to repo
 ## Get registry repo token and docker login again to the repo as token may have expried by then
@@ -117,17 +141,19 @@ podman manifest inspect ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/lang
 || oci --auth instance_principal artifacts container repository create \
     --compartment-id ${COMPARTMENT_ID} \
     --display-name ${DEPLOY_ID}/langfuse \
-    --is-public false \
+    --is-public true \
 || echo "already exists"
 
 # build and publish the LangFuse container image
-podman build --ulimit=nofile=4096:4096 --platform=${PLATFORM} --shm-size=10G -t ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse:${VERSION} --build-arg NEXT_PUBLIC_BASE_PATH=/langfuse -f ./web/Dockerfile .
+podman build --ulimit=nofile=65535:65535 --platform=${PLATFORM} --shm-size=10G -t ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse:${VERSION} --build-arg NEXT_PUBLIC_BASE_PATH=/langfuse -f ./web/Dockerfile .
 podman push ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse:${VERSION}
 
 # get image by SHA
 export LANGFUSE_IMAGE=$(podman inspect --format='{{index .RepoDigests 0}}' ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse:${VERSION})
 
 popd
+
+# Install kubectl to run remote-exec script for secrets
 
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
 chmod +x kubectl
@@ -141,47 +167,6 @@ sed -i '23i\      - --auth' $HOME/.kube/config
 sed -i '24i\      - instance_principal' $HOME/.kube/config
 
 kubectl get pods -A 
-
-# ## Get cluster kubeconfig
-# # oci ce cluster create-kubeconfig --cluster-id ${CLUSTER_ID} --file $HOME/.kube/config --region ${REGION} --token-version 2.0.0  --kube-endpoint PRIVATE_ENDPOINT --auth resource_principal
-
-# cat ../../../kubeconfig
-# export KUBECONFIG=../../../kubeconfig
-
-# ## Clone the repo
-# rm -rf OCI_GenAI_access_gateway
-# git clone https://github.com/jin38324/OCI_GenAI_access_gateway.git
-# pushd OCI_GenAI_access_gateway
-
-# git checkout ${OCI_GENAI_GATEWAY_TAG:-581e3cb7150404d80b35f7875f0d28d1510d6de8}
-
-## generate the manifest
-
-#eval "echo \"$(cat ./manifests/genai_gateway.Deployment.template.yaml)\"" > genai_gateway.Deployment.yaml
-
-#cat genai_gateway.Deployment.yaml
-
-
-## Start SSH proxy to K8S API
-
-#ssh -o StrictHostKeyChecking=accept-new -i bastionKey.pem -N -D 127.0.0.1:1088 -p 22 ${BASTION_SESSION_ID}@host.bastion.${REGION}.oci.oraclecloud.com &
-#PROXY_PID=$!
-
-#export HTTP_PROXY="socks5://127.0.0.1:1088"
-#export HTTPS_PROXY="socks5://127.0.0.1:1088"
-
-## deploy the manifest
-# validate manifest
-
-#pip install PySocks
-
-#kubectl get pods -A
-
-#kubectl apply -f genai_gateway.Deployment.yaml --dry-run=client -o yaml
-# no validation on apply this time as it fails when using the proxy
-#kubectl apply -n ${LANGFUSE_K8S_NAMESPACE} -f genai_gateway.Deployment.yaml --wait --validate=false
-
-#kill $PROXY_PID
 
 
 # Schedule termination of this instance

@@ -6,11 +6,10 @@ resource "oci_redis_redis_cluster" "redis" {
   display_name   = "LangFuse"
   freeform_tags = {
   }
-  node_count         = "1"
-  node_memory_in_gbs = "16"
+  node_count         = var.redis_node_count
+  node_memory_in_gbs = var.redis_node_memory
   nsg_ids = [
   ]
-  #shard_count = <<Optional value not found in discovery>>
   software_version = "VALKEY_7_2"
   subnet_id        = var.use_existing_vcn ? local.node_pools[0]["subnet"] : oci_core_subnet.oke_nodepool_subnet[0].id
 }
