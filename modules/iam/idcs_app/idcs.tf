@@ -448,5 +448,16 @@ resource "oci_identity_domains_app" "idcs_app" {
   #     web_tier_policy_json       = "{\"cloudgatePolicy\": {\"version\": \"2.6\",\"requireSecureCookies\": false,\"allowCors\": true,\"disableAuthorize\": false,\"webtierPolicy\": [{\"policyName\": \"default\",\"resourceFilters\": [{\"filter\": \"/onboarding/.*\",\"comment\": \"\",\"type\": \"regex\",\"method\": \"oauth\",\"authorize\": false},{\"filter\": \"/ingestion/.*\",\"comment\": \"\",\"type\": \"regex\",\"method\": \"oauth\",\"authorize\": false},{\"filter\": \"/{{oacinstance}}/.*\",\"comment\": \"\",\"type\": \"regex\",\"method\": \"oauth\",\"authorize\": false},{\"filter\": \"/config/odi/.*\",\"comment\": \"\",\"type\": \"regex\",\"method\": \"oauth\",\"authorize\": false},{\"filter\": \"/platform/.*\",\"comment\": \"\",\"type\": \"regex\",\"method\": \"oauth\",\"authorize\": false},{\"filter\": \"/{{oacinstance}}/xmlpserver/services/?.*\",\"comment\": \"\",\"type\": \"regex\",\"method\": \"public\",\"authorize\": false},{\"filter\": \"/{{oacinstance}}/analytics-ws/?.*\",\"comment\": \"\",\"type\": \"regex\",\"method\": \"public\",\"authorize\": false}]}]}}"
   # }
 
+  # patch the app to deactivate it on destroy, otherwise destroy fails.
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-CMD
+      oci identity-domains app patch \
+        --endpoint "https://${self.idcs_endpoint}" \
+        --app-id ${self.id} \
+        --schemas '["urn:ietf:params:scim:api:messages:2.0:PatchOp"]' \
+        --operations '[{"op": "replace", "path": "active", "value": false}]'
+    CMD
+  }
 }
 

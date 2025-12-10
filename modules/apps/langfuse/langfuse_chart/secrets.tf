@@ -1,6 +1,6 @@
 
 resource "random_bytes" "langfuse_password_encryption_key" {
-  length      = 32
+  length = 32
 }
 
 resource "random_string" "langfuse_password_encryption_salt" {

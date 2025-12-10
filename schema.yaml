@@ -1,17 +1,18 @@
-## Copyright © 2022, Oracle and/or its affiliates. 
+## Copyright © 2022, Oracle and/or its affiliates.
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 title: LangFuse on OKE
 description: |
-  Deploy an Oracle Kubernetes Engine cluster with LangFuse. 
+  Deploy Langfuse on Oracle Kubernetes Engine.
 stackDescription: |
   LangFuse deployment on a multi-node-pool OKE cluster.
 informationalText: |
-  To get started, run the Cluster Access Command locally or in Cloud Shell, to access the OKE cluster. 
+  To get started, see the information in the github repo.
 schemaVersion: 1.1.0
 
 locale: "en"
 variableGroups:
+
   - title: Cluster Networking
     variables:
       - use_existing_vcn
@@ -20,7 +21,7 @@ variableGroups:
       - vcn_id
       - add_vcn_tag
       - vcn_tags
-  
+
   - title: Cluster API Endpoint
     variables:
       - is_endpoint_public
@@ -136,25 +137,32 @@ variableGroups:
       not:
         - ${use_existing_vcn}
 
-  # - title: "Security: Secrets Encryption"
-  #   variables:
-  #     - enable_secret_encryption
-  #     - secrets_key_vault_compartment_id
-  #     - secrets_key_vault_id
-  #     - secrets_key_id
+  - title: "Security: Secrets Encryption"
+    variables:
+      - enable_secret_encryption
+      - secrets_key_vault_compartment_id
+      - secrets_key_vault_id
+      - secrets_key_id
+    visible: false
 
-  # - title: "Security: Image Signature Validation"
-  #   variables:
-  #     - enable_image_validation
-  #     - image_validation_key_vault_compartment_id
-  #     - image_validation_key_vault_id
-  #     - image_validation_key_id
+  - title: "Security: Image Signature Validation"
+    variables:
+      - enable_image_validation
+      - image_validation_key_vault_compartment_id
+      - image_validation_key_vault_id
+      - image_validation_key_id
+    visible: false
 
-  # - title: "Security: Pod Admission Controllers"
-  #   variables:
-  #     - enable_pod_admission_controller
+  - title: "Security: Pod Admission Controllers"
+    variables:
+      - enable_pod_admission_controller
+    visible: false
 
-  - title: "Cluster Autoscaler Settings"
+  - title: Cluster Add-Ons
+    variables:
+      - cert_manager_nb_replicas
+
+  - title: Cluster Autoscaler Settings
     variables:
       - cluster_autoscaler_max_node_provision_time
       - cluster_autoscaler_scale_down_delay_after_add
@@ -167,15 +175,13 @@ variableGroups:
       - np2_enable_autoscaler
       - np3_enable_autoscaler
 
-  # - title: "DevOps Deployment Pipelines"
-  #   variables:
-  #     - devops_compartment_id
-  #     - oss_images_repo_prefix
-  #     - oss_charts_repo_prefix
-  #   visible:
-  #     and:
-  #       - not: is_enhanced_cluster
-  #       - not: is_endpoint_public
+  - title: "DevOps Deployment Pipelines"
+    variables:
+      - devops_compartment_id
+    visible: false
+      # and:
+      #   - not: is_enhanced_cluster
+      #   - not: is_endpoint_public
 
   # - title: "Deployments"
   #   variables:
@@ -183,6 +189,21 @@ variableGroups:
   #     - enable_cert_manager
   #     - enable_metrics_server
   #     - enable_monitoring_stack
+  - title: LangFuse 
+    variables:
+      - langfuse_s3_access_key
+      - langfuse_s3_secret_key
+      - langfuse_helm_chart_version
+      - postgresql_shape
+      - redis_node_count
+      - redis_node_memory
+      - identity_domain_id
+
+  - title: Open AI Compatibility Gateway
+    variables:
+      - enable_oci_genai_gateway
+      - oci_genai_gateway_tag
+
 
 variables:
 
@@ -220,7 +241,7 @@ variables:
       compartmentId: vcn_compartment_id
     required: true
     visible: ${use_existing_vcn}
-    
+
   vcn_cidr:
     type: string
     default: "10.0.0.0/16"
@@ -255,7 +276,7 @@ variables:
   is_endpoint_public:
     type: boolean
     default: false
-    title: Expose the Kubernetes Endpoint to the Internet.
+    title: Expose the Kubernetes Endpoint to the Internet (not recommended).
     description: Select this option to make the Kubernetes Endpoint public. If left unchecked, a bastion host will be needed to access the cluster.
     required: true
     visible:
@@ -390,7 +411,7 @@ variables:
       compartmentId: vcn_compartment_id
       vcnId: vcn_id
     required: true
-    visible: 
+    visible:
       and:
         - ${use_existing_vcn}
         - allow_deploy_public_lb
@@ -987,6 +1008,12 @@ variables:
       compartmentId: cluster_compartment_id
     visible: np3_add_tag
 
+  identity_domain_id:
+    type: string #oci:identity:domains:id
+    title: OCI Identity Domain OCID
+    description: OCID of the OCI Identity Domain to use to create the Langfuse SSO application
+
+  # Security & Encryption Section
   enable_secret_encryption:
     type: boolean
     default: false
@@ -1071,8 +1098,39 @@ variables:
       Enable Pod admission controllers in the Kubernetes cluster, requiring all pods to comply with established security policies. 
       Note this will prevent any pod deployment until policies are defined.
 
+  # oss_images_repo_prefix:
+  #   type: string
+  #   title: OSS Images Repo Prefix
+  #   description: Prefix for storing images in OCI Object Storage.
+  #   default: "oss_images"
 
-  # Add ons
+  # oss_charts_repo_prefix:
+  #   type: string
+  #   title: OSS Charts Repo Prefix
+  #   description: Prefix for storing Helm charts in OCI Object Storage.
+  #   default: "oss_charts"
+
+  # push_oss_images:
+  #   type: boolean
+  #   title: Push Images to OSS
+  #   description: Whether to push images to Object Storage.
+
+  # LangFuse S3 / Secrets Section
+  langfuse_s3_access_key:
+    type: string
+    title: Langfuse S3 Access Key
+    description: S3 access key to use for Langfuse object storage.
+    sensitive: true
+    required: true
+
+  langfuse_s3_secret_key:
+    type: string
+    title: Langfuse S3 Secret Key
+    description: S3 secret key to use for Langfuse object storage.
+    sensitive: true
+    required: true
+
+  # Add-Ons Section
   enable_metrics_server:
     type: boolean
     default: true
@@ -1080,33 +1138,10 @@ variables:
     description: |
       Metrics server is used to report metrics, and is used by pod auto-scalers and cluster auto-scaler.
     visible: false
-      # not:
-      #   or: 
-      #     - and:
-      #       - ge:
-      #         - node_pool_count
-      #         - 1
-      #       - eq:
-      #         - np1_enable_autoscaler
-      #         - true
-      #     - and:
-      #       - ge:
-      #         - node_pool_count
-      #         - 2
-      #       - eq:
-      #         - np2_enable_autoscaler 
-      #         - true
-      #     - and:
-      #       - ge:
-      #         - node_pool_count
-      #         - 3
-      #       - eq:       
-      #         - np3_enable_autoscaler
-      #         - true
 
   enable_cert_manager:
     type: boolean
-    default: enable_flink
+    default: true
     title: Enable Cert-Manager
     description: |
       cert-manager is used to generate certificates, whether for securing internal communication or providing domain certificates.
@@ -1115,35 +1150,124 @@ variables:
       not:
         - enable_flink
 
-  enable_flink:
-    type: boolean
-    default: true
-    title: Deploy Apache Flink
-    description: |
-      Apache Flink will be installed using the Flink Operator.
+  # enable_monitoring_stack:
+  #   type: boolean
+  #   default: true
+  #   title: Deploy Monitoring Stack
+  #   description: Deploy monitoring stack (Prometheus, Grafana, etc.)
 
-  enable_monitoring_stack:
+  cert_manager_version:
+    type: string
+    title: Cert-Manager Version
+    description: Version of Cert-Manager.
+    default: "v1.19.2"
+    visible: false
+
+  cert_manager_nb_replicas:
+    type: number
+    title: Cert-Manager Replica Count
+    description: Number of replicas for Cert-Manager.
+    default: 2
+    visible: false
+
+  cert_manager_force_devops_deployment:
     type: boolean
+    title: Force Cert-Manager DevOps Deployment
+    description: Force Cert-Manager deployment via DevOps pipelines on each apply.
+    default: false
+    visible: false
+
+  metrics_server_chart_version:
+    type: string
+    title: Metrics Server Chart Version
+    description: Version of the Metrics Server Helm chart.
+    default: "3.11.0"
+    visible: false
+
+  metrics_server_force_devops_deployment:
+    type: boolean
+    title: Force Metrics Server DevOps Deployment
+    description: Force a deployment of the metrics-server via DevOps pipelines.
+    default: false
+    visible: false
+
+  oci_genai_gateway_tag:
+    type: string
+    title: OpenAI Compatibility Gateway SHA of the commit to use
+    description: Version tag for the OCI GenAI Gateway.
+    
+  langfuse_helm_chart_version:
+    type: enum
+    # enumerated values
+    enum:
+    - "1.5.14"
+    # - "latest" # TODO support latest version and look up the chart version
+    title: LangFuse Helm Chart Version
+    description: | 
+      Version of the LangFuse Helm chart.
+      Supported versions are listed. 
+    default: "1.5.14"
+
+  # Database Section
+  postgresql_shape:
+    type: string
+    title: PostgreSQL Shape
+    description: Compute shape for PostgreSQL.
+    default: "PostgreSQL.VM.Standard.E5.Flex"
+
+  redis_node_count:
+    type: number
+    title: Redis Node Count
+    description: Number of nodes for Redis.
+    default: 1
+
+  redis_node_memory:
+    type: number
+    title: Redis Node Memory (in GB)
+    description: Memory per Redis node in GB.
+    default: 16
+
+  # Cluster Autoscaler Settings Section
+  enable_cluster_autoscaler:
+    type: boolean
+    title: Enable Cluster Autoscaler
+    description: Enable the Kubernetes Cluster Autoscaler for node pools.
     default: true
-    title: Deploy Monitoring Stack
-    description: |
-      Deploys Prometheus, Grafana and related datasources, plugins and dashboards.
+    visible: false
+
+  cluster_autoscaler_ocir_region:
+    type: string
+    title: OCIR Region for Cluster Autoscaler
+    description: OCI Registry region used for the Cluster Autoscaler image.
+    default: "us-ashburn-1"
+    visible: false
+
+  cluster_autoscaler_force_devops_deployment:
+    type: boolean
+    title: Force Cluster Autoscaler DevOps Deployment
+    description: Force Cluster Autoscaler deployment via DevOps pipelines.
+    default: false
+    visible: false
 
   cluster_autoscaler_max_node_provision_time:
     type: number
     title: Max node provisioning time before it is considered failed.
+    default: 25
 
   cluster_autoscaler_scale_down_delay_after_add:
     type: number
     title: Wait time before scaling a node down after it was added.
+    default: 10
 
   cluster_autoscaler_scale_down_unneeded_time:
     type: number
     title: Wait time before scaling a node down after it is unneeded.
+    default: 10
 
   cluster_autoscaler_unremovable_node_recheck_timeout:
     type: number
     title: Wait time between checks on unremovable nodes.
+    default: 5
 
   cluster_autoscaler_use_workload_identity:
     type: boolean
@@ -1151,47 +1275,45 @@ variables:
     description: |
       Workload Identiy Auth limits the permission scope to the Cluster Autoscaler workload only. Unchecking this option will
       make use of node level permissions, which means any workoad on the node may have the permission to manage nodes.
-    default: 
-      ${is_enhanced_cluster}
-    visible:
-      ${is_enhanced_cluster}
+    default: true
+      # ${is_enhanced_cluster}
+    visible: false
+      # ${is_enhanced_cluster}
+
+  enable_oci_genai_gateway:
+    type: boolean
+    title: Deploy OpenAI Compatibility Gateway
+    description: |
+      Deploy an OpenAI Comaptibility gateway to use the Langfuse LLM-as-a-Judge features.
+      See https://github.com/jin38324/OCI_GenAI_access_gateway for more details
+    default: true
+    visible: true
+
+  object_storage_namespace:
+    type: string
+    visible: false
+
+  oci_profile:
+    type: string
+    visible: false
+
+  cluster_options_add_ons_is_tiller_enabled:
+    type: boolean
+    visible: false
+
+  defined_tags:
+    visible: false
+
+
 
 outputGroups:
   - title: Access
-    outputs: 
-      - access_command
-      - flink_demo_job
-      - flink_ui_port_forward
-      - flink_ui_access
-      - grafana_password
+    outputs:
+
 
 outputs:
-  access_command:
-    type: copyableString
-    title: Access Command
-    displayText: Run this command to access your cluster locally.
-    visible: true
-
-  flink_demo_job:
-    type: copyableString
-    title: Flink Demo Job
-    displayText: Run a demo job with the following command
-    visible: true
-
-  flink_ui_port_forward:
-    type: copyableString
-    title: Flink UI Access Port
-    displayText: Run the following command to forward the port to the Flink UI locally and access the UI
-    visible: true
-
-  flink_ui_access:
-    type: link
-    title: Flink UI
-    displayText: "Access the Flink UI"
-    visible: true
-
-  grafana_password:
-    type: copyableString
-    title: Grafana access
-    displayText: "Grafana password for 'admin' user"
-    visible: enable_monitoring_stack
+  # access_command:
+  #   type: copyableString
+  #   title: Access Command
+  #   displayText: Run this command to access your cluster locally.
+  #   visible: true

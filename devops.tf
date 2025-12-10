@@ -15,12 +15,13 @@ locals {
   use_addon_manager = var.is_enhanced_cluster
 
   object_storage_namespace = var.object_storage_namespace == null ? data.oci_objectstorage_namespace.ns.namespace : var.object_storage_namespace
+  devops_compartment_id    = var.devops_compartment_id == null ? var.cluster_compartment_id : var.devops_compartment_id
 }
 
 # Setup the DevOps project when using DevOps
 module "devops_setup" {
   source         = "./modules/devops/project"
-  compartment_id = var.devops_compartment_id
+  compartment_id = local.devops_compartment_id
   project_name   = "${local.cluster_name}-deployments"
   target_cluster = oci_containerengine_cluster.oci_oke_cluster
   defined_tags   = var.defined_tags
@@ -37,7 +38,7 @@ module "devops_target_cluster_env" {
 # Create policies for the DevOps service to do its work.
 module "devops_policies" {
   source                 = "./modules/devops/policies"
-  devops_compartment_id  = var.devops_compartment_id
+  devops_compartment_id  = local.devops_compartment_id
   vcn_compartment_id     = var.vcn_compartment_id
   cluster_compartment_id = var.cluster_compartment_id
   cluster_name           = local.cluster_name_sanitized
@@ -45,51 +46,3 @@ module "devops_policies" {
     oci = oci.home_region
   }
 }
-
-# ## Code repo with build scripts
-# module "devops_code_repo" {
-#   source      = "./modules/devops/repository"
-#   project_id  = module.devops_setup.project_id
-#   name        = "oke-langfuse"
-#   description = "Langfuse deployment on OKE"
-# }
-
-# output "repo" {
-#   value = module.devops_code_repo
-# }
-
-# resource "null_resource" "clone_repo" {
-
-#   # build and deploy OCI GenAI Gateway
-#   provisioner "local-exec" {
-#     command = <<-EOT
-#     set -ex
-#     pwd
-
-#     # git clone https://github.com/streamnsight/oke-langfuse.git
-#     # pushd oke-langfuse
-#     git remote | grep oci || git remote add oci $OCI_LANGFUSE_REPO_URL
-#     GIT_SSH_COMMAND="ssh -v" git push oci main
-#     # popd
-#     EOT
-#     # Optional arguments:
-#     when       = create
-#     on_failure = fail # or "continue"
-#     environment = {
-#       OCI_LANGFUSE_REPO_URL = module.devops_code_repo.repo.http_url
-#       # REGION                 = var.region
-#       # CLUSTER_ID             = var.cluster_id
-#       # AUTH_TYPE              = "INSTANCE_PRINCIPAL"
-#       # MODULE_PATH            = "${path.module}"
-#       # BASTION_SESSION_ID     = var.bastion_session_id
-#       # COMPARTMENT_ID         = var.compartment_id
-#       # TENANCY_NAMESPACE      = data.oci_objectstorage_namespace.ns.namespace
-#       # OCI_GENAI_GATEWAY_TAG  = var.oci_genai_gateway_tag
-#       # LANGFUSE_K8S_NAMESPACE = "langfuse"
-#     }
-#   }
-#   depends_on = [
-#     # local_file.sock5_privatekey
-#     module.devops_code_repo
-#   ]
-# }

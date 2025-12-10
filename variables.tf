@@ -299,17 +299,10 @@ variable "enable_cert_manager" {
 }
 
 # Apps
-variable "enable_flink" {
-  default = true
-}
-
-variable "enable_monitoring_stack" {
-  default = true
-}
 
 variable "cert_manager_version" {
   type    = string
-  default = "v1.11.0"
+  default = "v1.19.2"
 }
 
 variable "cert_manager_nb_replicas" {
@@ -381,19 +374,19 @@ variable "devops_compartment_id" {
   default = null
 }
 
-variable "oss_images_repo_prefix" {
-  type    = string
-  default = "oss_images"
-}
+# variable "oss_images_repo_prefix" {
+#   type    = string
+#   default = "oss_images"
+# }
 
-variable "oss_charts_repo_prefix" {
-  type    = string
-  default = "oss_charts"
-}
+# variable "oss_charts_repo_prefix" {
+#   type    = string
+#   default = "oss_charts"
+# }
 
-variable "push_oss_images" {
-  type = bool
-}
+# variable "push_oss_images" {
+#   type = bool
+# }
 
 variable "object_storage_namespace" {
   type    = string
@@ -454,9 +447,14 @@ variable "redis_node_memory" {
 
 variable "langfuse_helm_chart_version" {
   type    = string
-  default = "1.5.4"
+  default = "1.5.14"
 }
 
 variable "identity_domain_id" {
   type = string
+}
+
+variable "enable_oci_genai_gateway" {
+  type    = bool
+  default = true
 }

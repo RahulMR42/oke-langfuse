@@ -19,6 +19,6 @@ module "oci_genai_gateway" {
   ]
 }
 
-output oci_genai_gateway_default_api_key {
+output "oci_genai_gateway_default_api_key" {
   value = module.oci_genai_gateway.default_api_key
 }

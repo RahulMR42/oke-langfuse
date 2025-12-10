@@ -7,12 +7,12 @@ data "oci_psql_configurations" "configurations" {
 }
 
 resource "random_string" "postgres_password" {
-  length      = 20
-  special     = true
-  min_lower   = 2
-  min_upper   = 2
-  min_special = 2
-  min_numeric = 4
+  length           = 20
+  special          = true
+  min_lower        = 2
+  min_upper        = 2
+  min_special      = 2
+  min_numeric      = 4
   override_special = "_"
 }
 
