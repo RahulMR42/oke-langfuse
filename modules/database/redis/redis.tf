@@ -23,28 +23,3 @@ resource "oci_redis_redis_cluster" "redis" {
   subnet_id        = var.subnet_id
 }
 
-
-# # security list to allow access from any node pool subnet
-# resource "oci_core_security_list" "redis_sec_list" {
-#   count          = var.use_existing_vcn ? 0 : 1
-#   compartment_id = var.vcn_compartment_id
-#   display_name   = "Redis"
-#   vcn_id         = oci_core_vcn.oke_vcn[0].id
-#   defined_tags   = var.vcn_tags
-
-#   dynamic "ingress_security_rules" {
-#     iterator = cidr
-#     for_each = local.node_pool_subnets_cidrs
-#     content {
-#       description = "Access to Redis from nodes"
-#       protocol    = "6"
-#       source      = cidr.value
-#       stateless   = false
-
-#       tcp_options {
-#         min = 6379
-#         max = 6379
-#       }
-#     }
-#   }
-# }
