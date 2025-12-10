@@ -20,7 +20,7 @@ variable "subnet_id" {
 }
 
 variable "metadata" {
-
+  type = map(any)
 }
 
 variable "ssh_authorized_keys" {
