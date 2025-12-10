@@ -49,6 +49,10 @@ resource "oci_objectstorage_bucket" "langfuse_bucket" {
 # shortly
 # Deploys an Ingress LB without TLS first, so we can get the IP
 # TODO: look at using native ingress controller as nginx-ingress is being deprecated in March 2026
+# https://cert-manager.io/announcements/2025/11/26/ingress-nginx-eol-and-gateway-api/
+
+# TODO: override LB settings to take full advantage of OCI LB capabilities
+
 module "langfuse_load_balancer_no_tls" {
   source          = "./modules/apps/langfuse/load_balancer/no_tls"
   compartment_id  = var.cluster_compartment_id
