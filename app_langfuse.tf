@@ -80,13 +80,21 @@ module "langfuse_load_balancer_tls" {
 
 # Create the IDCS app with the proper redirect URL
 module "langfuse_idcs_app" {
+  count = var.create_idcs_app ? 1 : 0
   source             = "./modules/iam/idcs_app"
   identity_domain_id = var.identity_domain_id
   display_name       = local.cluster_name_sanitized
   redirect_url       = "https://${module.langfuse_load_balancer_no_tls.ip_address}/langfuse/api/auth/callback/custom"
-
 }
 
+
+locals {
+    idcs_app_id                 = var.create_idcs_app ? module.langfuse_idcs_app[0].details.app_id : var.idcs_app_id
+  idcs_client_id              = var.create_idcs_app ? module.langfuse_idcs_app[0].details.client_id : var.idcs_client_id
+  idcs_client_secret          = var.create_idcs_app ? module.langfuse_idcs_app[0].details.client_secret : var.idcs_client_secret
+  idcs_domain_url             = var.create_idcs_app ? module.langfuse_idcs_app[0].details.domain_url : var.idcs_domain_url
+
+}
 
 # Create the Langfuse secrets, patch and build the Langfuse app container image and deploy the helm chart
 # The chart is deployed via DevOps pipeline, although secrets are deployed via remote-exec command to avoid storing credentials
@@ -105,10 +113,10 @@ module "langfuse_chart" {
   psql_cert                   = module.langfuse_postgres.details.cert
   s3_client_id                = var.langfuse_s3_access_key
   s3_client_secret            = var.langfuse_s3_secret_key
-  idcs_app_id                 = module.langfuse_idcs_app.details.app_id
-  idcs_client_id              = module.langfuse_idcs_app.details.client_id
-  idcs_client_secret          = module.langfuse_idcs_app.details.client_secret
-  idcs_domain_url             = module.langfuse_idcs_app.details.domain_url
+  idcs_app_id                 = local.idcs_app_id
+  idcs_client_id              = local.idcs_client_id
+  idcs_client_secret          = local.idcs_client_secret
+  idcs_domain_url             = local.idcs_domain_url
   redis_hostname              = module.langfuse_redis.details.hostname
   redis_password              = module.langfuse_redis.details.password
   devops_project_id           = module.devops_setup.project_id

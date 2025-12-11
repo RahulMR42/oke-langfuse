@@ -197,7 +197,15 @@ variableGroups:
       - postgresql_shape
       - redis_node_count
       - redis_node_memory
+
+  - title: SSO Configuration
+    variables:
+      - create_idcs_app
       - identity_domain_id
+      - idcs_domain_url
+      - idcs_app_id
+      - idcs_client_id
+      - idcs_client_secret
 
   - title: Open AI Compatibility Gateway
     variables:
@@ -1012,6 +1020,7 @@ variables:
     type: string #oci:identity:domains:id
     title: OCI Identity Domain OCID
     description: OCID of the OCI Identity Domain to use to create the Langfuse SSO application
+    visible: create_idcs_app
 
   # Security & Encryption Section
   enable_secret_encryption:
@@ -1288,6 +1297,46 @@ variables:
       See https://github.com/jin38324/OCI_GenAI_access_gateway for more details
     default: true
     visible: true
+
+  create_idcs_app:
+    type: boolean
+    default: true
+    title: Create Identity Domain Application for SSO
+    description: An application is needed with this template. if you do have the permission, select Yes here, otherwise app_id, client_id, client_secret and domain_url are needed
+    visible: true
+
+  idcs_app_id:
+    type: string
+    title: IDCS SSO App ID
+    description: The ID of the integrated domain application to use for SSO
+    visible: 
+      not:
+      - create_idcs_app
+
+  idcs_client_id:
+    type: string
+    title: IDCS SSO App Client ID
+    description: Client ID from the Confidential Application to use
+    visible: 
+      not:
+      - create_idcs_app
+
+  idcs_client_secret:
+    type: string
+    title: IDCS SSO App Client Secret
+    description: Oauth Client Secret from the Confidential Application to use
+    visible: 
+      not:
+      - create_idcs_app
+
+  idcs_domain_url:
+    type: string
+    title: IDCS Domain URL
+    description: The domain URL for the IDCS app, of the form https://idcs-XXXXX.identity.oraclecloud.com
+    visible: 
+      not:
+      - create_idcs_app
+
 
   object_storage_namespace:
     type: string

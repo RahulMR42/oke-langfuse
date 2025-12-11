@@ -407,23 +407,6 @@ variable "langfuse_s3_secret_key" {
   sensitive = true
 }
 
-# variable "idcs_domain_url" {
-#   type = string
-# }
-
-# variable "idcs_client_id" {
-#   type      = string
-#   sensitive = true
-# }
-
-# variable "idcs_client_secret" {
-#   type      = string
-#   sensitive = true
-# }
-
-# variable "idcs_app_id" {
-#   type = string
-# }
 
 variable "oci_genai_gateway_tag" {
   type    = string
@@ -458,3 +441,31 @@ variable "enable_oci_genai_gateway" {
   type    = bool
   default = true
 }
+
+variable "create_idcs_app" {
+  type = bool
+  default = true
+}
+
+variable "idcs_app_id" {
+  type = string
+  default = null
+}
+
+variable "idcs_domain_url" {
+  type = string
+  default = null
+}
+
+variable "idcs_client_id" {
+  type      = string
+  default = null
+  sensitive = true
+}
+
+variable "idcs_client_secret" {
+  type      = string
+  default = null
+  sensitive = true
+}
+
