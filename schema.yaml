@@ -21,6 +21,7 @@ variableGroups:
       - vcn_id
       - add_vcn_tag
       - vcn_tags
+      - use_network_source
 
   - title: Cluster API Endpoint
     variables:
@@ -211,6 +212,7 @@ variableGroups:
     variables:
       - enable_oci_genai_gateway
       - oci_genai_gateway_tag
+      - oci_genai_region
 
 
 variables:
@@ -1205,6 +1207,11 @@ variables:
     title: OpenAI Compatibility Gateway SHA of the commit to use
     description: Version tag for the OCI GenAI Gateway.
     
+  oci_genai_region:
+    type: oci:identity:region:name
+    title: OCI Region to use for the Generative AI endpoint
+    default: "us-chicago-1"
+
   langfuse_helm_chart_version:
     type: enum
     # enumerated values
@@ -1336,6 +1343,14 @@ variables:
     visible: 
       not:
       - create_idcs_app
+
+  use_network_source:
+    type: boolean
+    title: Use Network Source
+    description: |
+      Network Source Group narrows permissions to a specific VCN and CIDR blocks.
+      Unselect this option if you do not have permission to create network sources. Permissions will be limited to the compartment level.
+    default: true
 
 
   object_storage_namespace:

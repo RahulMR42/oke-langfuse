@@ -1,6 +1,6 @@
 locals {
   policy_statements = compact([
-    for permission in var.permissions : "Allow any-user to ${permission} in compartment id ${var.compartment_id} where ALL {request.networkSource.name='${var.nsg_name}'}"
+    for permission in var.permissions : "Allow any-user to ${permission} in compartment id ${var.compartment_id} ${var.use_nsg == true ? "where ALL {request.networkSource.name='${var.nsg_name}'}" : "where ANY {request.principal.type='instance', request.principal.type='cluster'}"}"
   ])
 }
 

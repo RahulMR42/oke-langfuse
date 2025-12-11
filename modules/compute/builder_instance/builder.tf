@@ -50,6 +50,5 @@ module "builder_policy" {
   ]
   providers = {
     oci = oci.home_region
-    oci.home_region = oci.home_region
   }
 }

@@ -36,11 +36,15 @@ locals {
 
 # Network Source for the cluster nodes
 module "network_source_group" {
+  count = var.use_network_source ? 1 : 0
   source        = "./modules/iam/network_source"
   nsg_name      = local.nsg_name
   tenancy_ocid  = var.tenancy_ocid
   vcn_id        = var.use_existing_vcn ? var.vcn_id : oci_core_vcn.oke_vcn[0].id
   subnets_cidrs = local.node_pool_subnets_cidrs
+  providers = {
+    oci = oci.home_region
+  }
 }
 
 # Policy for OKE nodes to read repos and be able to pull container images from OCIR
@@ -53,15 +57,24 @@ module "network_source_group" {
 #   ])
 # }
 
-module "nsg_based_policies" {
-  source         = "./modules/iam/nsg_policies"
-  nsg_name       = local.nsg_name
-  compartment_id = var.cluster_compartment_id
-  permissions = [
+locals {
+  cluster_node_permissions = [
     "read repos",
     "use generative-ai-family"
   ]
 }
+
+module "nsg_based_policies" {
+  source         = "./modules/iam/nsg_policies"
+  nsg_name       = local.nsg_name
+  compartment_id = var.cluster_compartment_id
+  permissions = local.cluster_node_permissions
+  use_nsg = var.use_network_source
+  providers = {
+    oci = oci.home_region
+  }
+}
+
 
 module "policies" {
   source         = "./modules/iam/policy"
@@ -72,7 +85,7 @@ module "policies" {
     module.cluster_autoscaler_workload_identity_policy.policy_statements
   )
   providers = {
-    oci.home_region = oci.home_region
+    oci = oci.home_region
   }
 }
 

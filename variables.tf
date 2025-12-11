@@ -413,6 +413,11 @@ variable "oci_genai_gateway_tag" {
   default = "581e3cb7150404d80b35f7875f0d28d1510d6de8"
 }
 
+variable "oci_genai_region" {
+  type = string
+  default = "us-chicago-1"
+}
+
 variable "postgresql_shape" {
   type    = string
   default = "PostgreSQL.VM.Standard.E5.Flex"
@@ -435,6 +440,7 @@ variable "langfuse_helm_chart_version" {
 
 variable "identity_domain_id" {
   type = string
+  default = null
 }
 
 variable "enable_oci_genai_gateway" {
@@ -469,3 +475,7 @@ variable "idcs_client_secret" {
   sensitive = true
 }
 
+variable "use_network_source" {
+  type = bool
+  default = true
+}

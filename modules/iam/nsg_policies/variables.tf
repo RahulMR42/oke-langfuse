@@ -9,3 +9,8 @@ variable "compartment_id" {
 variable "permissions" {
   type = list(string)
 }
+
+variable "use_nsg" {
+  type = bool
+  default = true
+}

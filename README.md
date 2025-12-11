@@ -20,6 +20,8 @@ The OKE cluster template features the following:
 
 ## Getting started with Langfuse on OKE
 
+Oracle-Linux 8-10 2025-09-16
+
 
 ## Use the Terraform template
 
