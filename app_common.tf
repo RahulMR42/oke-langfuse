@@ -17,6 +17,11 @@ module "builder_instance" {
     "manage instance-family",
     "manage cluster-family"
   ]
+
+  providers = {
+    oci = oci
+    oci.home_region = oci.home_region
+  }
 }
 
 

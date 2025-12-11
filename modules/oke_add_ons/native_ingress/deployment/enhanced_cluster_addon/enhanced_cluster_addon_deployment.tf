@@ -14,7 +14,7 @@ locals {
 
   ]
 }
-resource "oci_containerengine_addon" "cert_manager_addon" {
+resource "oci_containerengine_addon" "native_ingress_addon" {
   count = var.enabled ? 1 : 0
   #Required
   addon_name                       = "NativeIngressController"

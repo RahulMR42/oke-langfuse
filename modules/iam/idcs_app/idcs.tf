@@ -36,7 +36,7 @@ resource "oci_identity_domains_app" "idcs_app" {
   }
   display_name  = var.display_name
   idcs_endpoint = data.oci_identity_domain.identity_domain.url
-  schemas       = ["urn:ietf:params:scim:schemas:oracle:idcs:App"]
+  schemas       = ["urn:ietf:params:scim:schemas:oracle:idcs:App", "urn:ietf:params:scim:schemas:oracle:idcs:extension:OCITags"]
 
   #Optional
   # access_token_expiry = var.app_access_token_expiry
@@ -451,9 +451,10 @@ resource "oci_identity_domains_app" "idcs_app" {
   # patch the app to deactivate it on destroy, otherwise destroy fails.
   provisioner "local-exec" {
     when    = destroy
+    on_failure = continue
     command = <<-CMD
       oci identity-domains app patch \
-        --endpoint "https://${self.idcs_endpoint}" \
+        --endpoint "${self.idcs_endpoint}" \
         --app-id ${self.id} \
         --schemas '["urn:ietf:params:scim:api:messages:2.0:PatchOp"]' \
         --operations '[{"op": "replace", "path": "active", "value": false}]'

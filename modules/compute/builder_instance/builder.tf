@@ -48,4 +48,8 @@ module "builder_policy" {
   policy_statements = [for statement in var.policies :
     "allow any-user to ${statement} in compartment id ${var.compartment_id} where ALL { request.principal.id = '${oci_core_instance.builder.id}' }"
   ]
+  providers = {
+    oci = oci.home_region
+    oci.home_region = oci.home_region
+  }
 }

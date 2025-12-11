@@ -71,6 +71,9 @@ module "policies" {
     module.nsg_based_policies.policy_statements,
     module.cluster_autoscaler_workload_identity_policy.policy_statements
   )
+  providers = {
+    oci.home_region = oci.home_region
+  }
 }
 
 # resource "oci_identity_policy" "cluster-node-policies" {
