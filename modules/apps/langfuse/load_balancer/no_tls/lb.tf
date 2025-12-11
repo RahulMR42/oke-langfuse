@@ -50,8 +50,8 @@ resource "null_resource" "deploy_load_balancer_no_tls" {
         kubectl get namespace langfuse || kubectl create namespace langfuse
 
         while true; do
-          kubectl apply -f langfuse_no_tls.Ingress.yaml --namespace langfuse
-          if [ $? eq 0 ]; then
+          
+          if kubectl apply -f langfuse_no_tls.Ingress.yaml --namespace langfuse; then
             break
           fi
           echo "Failed deploying Langfuse ingress. Retrying..."
