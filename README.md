@@ -20,7 +20,32 @@ The OKE cluster template features the following:
 
 ## Getting started with Langfuse on OKE
 
-Oracle-Linux 8-10 2025-09-16
+Before you start, you will need:
+
+- A SSH key (public key) to access the OKE nodes if needed
+- A customer key and secret for S3 compatible API (Profile (top right menu) ->  Your User -> Tokens & Keys -> Customer Secret Keys)
+- The OCID of your Identity Domain (if you have permission to create apps) OR the informaton about an app created by an admin (Domain URL, App ID, Client id, and Client secret). If you do not control the app, you will also need to have the admin update the Redirect URL once the stack is deployed, with the proper IP address.
+
+When choosing a shape for the OKE nodes, we recommend using `Oracle-Linux 8-10 2025-09-16`, which is the latest OKE optimized image.
+Other images will work too. They just do not contain the Kubernetes binaries so that they will tend to be slower to boot / scale up.
+
+IMPORTANT!: Once the stack is deployed, you need to assign users to the IDCS application to get access to Langfuse. If you are not authorized to create the app, you will need to ask you ID Domain admin to do this. Groups can also be allowed, so that users belonging to a group can gain access in bulk.
+
+## Known limitations
+
+- If you are not permitted to create the IDCS/IAM application, you will need to update the app with the redirect URL (see setting up the IDCS App for more details)
+
+- The stack deploys a Public Load Balancer, so the option to allow public load balancers is needed. 
+- The Load balancer uses a TLS certificate that is IP based. (Support for domain names wil come later). The Load blaancer uses a dynamic IP, so the Ingress load balancer is first deployed to get an IP address, then the Ingress is updated to use TLS with an IP certtificate provided by Lets Encrypt. IP-certs are not yet production ready, so they are only available through the LetsEncrypt Staging `short-lived` profile. This is coming out soon so this will be updated when it does.
+
+- A customer Client ID and Secret are needed for the S3 compatible access to object storage. That ties the stack to a user, which is not ideal. Until contribution is made to the langfuse project to support native OCI object storage, this is the only way to leverage OCI object storage.
+
+- IDCS appliction is used for SSO: it allows providing access to know users only. The Langfuse user/password auth requires that the subsciption button is allowed to create new users, but that opens the door to anyone being able to create users, so we use IDCS to serve as SSO provider, and limit users to those assigned to the application.
+
+## Setting up the IDCS application
+
+An IDCS application is 
+
 
 
 ## Use the Terraform template
