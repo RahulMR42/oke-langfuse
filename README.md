@@ -63,6 +63,25 @@ Once the stack is deployed
 - Activate the application
 - Go to Users or Groups and add the appropriate users or groups to be authorized to use Langfuse.
 
+## Configuring LLM models in Langfuse
+
+In Langfuse, to access LLMs for evaluation (LLM-as-Judge) with traces and datasets, you need to setup model access.
+
+OCI model access is via the OCI GenaAI Gateway project (which is NOT an OCI service, but an open source proxy to mimic OpenAI)
+
+In the `LLM Connections` of your Langfuse project settings:
+
+- Click +Add LLM Connection
+- Choose OpenAI as the LLM adapter
+- name your provider (ex. OC)
+- For API Key, use the value you find in the OUTPUT area of the resource manager stack for DEFAULT_API_KEYS
+- Click *Show Advanced Settings*
+- for API Base URL use: `http://oci-genai-gateway:8088/v1`
+- Uncheck *Enable default models*
+- enter models you want to use (ex xai.grok-3, xai-grok-4-fast-reasoning, cohere.command-a-03-2025...)
+- Click *Create Connection*
+
+
 ## Use the Terraform template
 
 To use the Terraform template locally, configure the OCI Command Line Interface with a Private/Public key pair added to your user.
