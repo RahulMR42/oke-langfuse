@@ -11,6 +11,14 @@ locals {
       key   = "loadBalancerSubnetId"
       value = var.load_balancers_subnet_id
     },
+    {
+      key   = "authType"
+      value = "workloadIdentity"
+    },
+    {
+      key   = "logVerbosity"
+      value = "2"
+    },
 
   ]
 }
