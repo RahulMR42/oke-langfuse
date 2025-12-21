@@ -12,7 +12,7 @@ chmod +x /var/run/docker_login.sh
 echo "${docker_credential_helper_script}" | base64 --decode > /var/run/docker-credential-helper-init.sh
 chmod +x /var/run/docker-credential-helper-init.sh
 
-(crontab -l 2>/dev/null; echo "*/20 * * * * root sleep \$(( \$RANDOM % 1000 )); /var/run/docker_login.sh") | crontab -
+(crontab -l 2>/dev/null; echo "*/20 * * * * root sleep \$(( \$RANDOM \% 1000 )); /var/run/docker_login.sh") | crontab -
 (crontab -l 2>/dev/null; echo "@reboot /var/run/docker_login.sh") | crontab -
 
 bash /var/run/docker-credential-helper-init.sh
