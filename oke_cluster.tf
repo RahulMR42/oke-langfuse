@@ -16,6 +16,10 @@ resource "oci_containerengine_cluster" "oci_oke_cluster" {
   name               = local.cluster_name
   vcn_id             = var.use_existing_vcn ? var.vcn_id : oci_core_vcn.oke_vcn[0].id
 
+  cluster_pod_network_options {
+    cni_type = "OCI_VCN_IP_NATIVE"
+  }
+
   endpoint_config {
     is_public_ip_enabled = var.is_endpoint_public
     subnet_id            = var.use_existing_vcn ? var.kubernetes_endpoint_subnet : oci_core_subnet.oke_api_endpoint_subnet[0].id

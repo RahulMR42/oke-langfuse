@@ -121,6 +121,11 @@ resource "oci_containerengine_node_pool" "oci_oke_node_pool" {
         availability_domain = placement_configs.value
       }
     }
+
+    node_pool_pod_network_option_details {
+      cni_type = "OCI_VCN_IP_NATIVE"
+      pod_subnet_ids = [var.use_existing_vcn ? local.node_pools[count.index]["subnet"] : oci_core_subnet.oke_nodepool_subnet[0].id]
+    }
     size         = local.node_pools[count.index]["node_count"]
     defined_tags = local.node_pools[count.index]["tags"]
   }
