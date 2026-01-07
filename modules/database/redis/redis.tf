@@ -29,7 +29,7 @@ resource "oci_redis_redis_cluster" "redis" {
     on_failure = continue
     command = <<-EOT
 set -x -o pipefail
-export VCN_ID=$(oci network --auth instance_principal subnet get --subnet-id ${self.subnet_id} | jq -r '.data."vcn-id"')
+export VCN_ID=$(oci network subnet get --subnet-id ${self.subnet_id} | jq -r '.data."vcn-id"')
 export REDIS_SEC_LIST_ID=$(oci network security-list list --compartment-id ${self.compartment_id} --vcn-id $VCN_ID | jq -r '.data[] | select(."display-name" == "redis-security-list") | .id')
 oci network security-list delete --security-list-id $REDIS_SEC_LIST_ID --force
 EOT

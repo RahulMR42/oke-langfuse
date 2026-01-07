@@ -18,7 +18,7 @@ module "metrics_server_deployment_with_addon_manager" {
   nb_replicas   = 2
   addon_version = null # null sets auto-update
   depends_on = [
-    data.oci_containerengine_cluster_kube_config.oke,
+    module.cert_manager_deployment_using_addon_manager, # metrics server depends on cert-manager
     oci_containerengine_node_pool.oci_oke_node_pool
   ]
 }

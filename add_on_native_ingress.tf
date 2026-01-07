@@ -51,4 +51,8 @@ module "native_ingress_workload_identity_policy" {
   providers = {
     oci = oci.home_region
   }
+  depends_on = [
+    module.cert_manager_deployment_using_addon_manager, # metrics server depends on cert-manager
+    oci_containerengine_node_pool.oci_oke_node_pool
+  ]
 }

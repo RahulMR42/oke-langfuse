@@ -1,5 +1,5 @@
 
-# build the OCI GenAI Gateway image
+# build the Langfuse image
 resource "null_resource" "build_image" {
   triggers = {
     instance_id = var.builder_details.instance_id

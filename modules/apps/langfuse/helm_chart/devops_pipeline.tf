@@ -51,7 +51,7 @@ resource "oci_generic_artifacts_content_artifact_by_path" "helm_chart_values_art
   artifact_path = "values.yaml"
   repository_id = oci_artifacts_repository.helm_chart_values_repository.id
   version       = "0.1.0"
-  content       = file("${path.module}/scripts/values.template.yaml")
+  content       = file("${path.module}/values.template.yaml")
 
   # delete the resource from artifact repo on destroy as it blocks destroy of the artifact repo itself
   provisioner "local-exec" {
@@ -185,6 +185,7 @@ resource "oci_devops_deploy_stage" "langfuse" {
   helm_chart_deploy_artifact_id     = module.langfuse_chart_devops_artifact.artifact.id
   is_debug_enabled                  = "false"
   is_force_enabled                  = "false"
+  is_uninstall_on_stage_delete      = "true"
   max_history                       = "0"
   namespace                         = "langfuse"
   oke_cluster_deploy_environment_id = var.devops_environment_id
@@ -217,7 +218,7 @@ resource "oci_devops_deploy_stage" "langfuse" {
   should_skip_crds                  = "false"
   should_skip_render_subchart_notes = "false"
   #test_load_balancer_config = <<Optional value not found in discovery>>
-  timeout_in_seconds = "600"
+  timeout_in_seconds = "900"
   #traffic_shift_target = <<Optional value not found in discovery>>
   values_artifact_ids = [oci_devops_deploy_artifact.helm_chart_values_deploy_artifact.id]
   #wait_criteria = <<Optional value not found in discovery>>
@@ -241,8 +242,7 @@ resource "oci_devops_deployment" "langfuse_deployment" {
   depends_on = [
     oci_devops_deploy_stage.langfuse,
     module.push_langfuse_chart,
-    module.langfuse_chart_devops_artifact,
-    null_resource.build_image
+    module.langfuse_chart_devops_artifact
   ]
   lifecycle {
     ignore_changes = [defined_tags]
