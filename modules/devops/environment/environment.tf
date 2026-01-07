@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 resource "oci_devops_deploy_environment" "oke_cluster" {
   count                   = var.target_cluster == null ? 0 : 1
   cluster_id              = var.target_cluster.id

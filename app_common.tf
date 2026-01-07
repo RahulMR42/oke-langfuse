@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 module "builder_instance" {
   source              = "./modules/compute/builder_instance"
   compartment_id      = var.cluster_compartment_id

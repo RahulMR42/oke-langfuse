@@ -1,5 +1,5 @@
-# Copyright © 2022, Oracle and/or its affiliates. 
-# All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 locals {
   native_ingress_helm_values = {
@@ -28,7 +28,7 @@ module "native_ingress_workload_identity_policy" {
   workload_name        = "oci-native-ingress-controller"
   service_account_name = "oci-native-ingress-controller"
   namespace            = "native-ingress-controller-system"
-  permissions          = [
+  permissions = [
     "manage load-balancers",
     "use virtual-network-family",
     "manage cabundles",
@@ -46,8 +46,8 @@ module "native_ingress_workload_identity_policy" {
     "read cluster-family",
     "use tag-namespaces"
   ]
-  defined_tags         = var.defined_tags
-  cluster_id           = oci_containerengine_cluster.oci_oke_cluster.id
+  defined_tags = var.defined_tags
+  cluster_id   = oci_containerengine_cluster.oci_oke_cluster.id
   providers = {
     oci = oci.home_region
   }

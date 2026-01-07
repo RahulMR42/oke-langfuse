@@ -1,6 +1,5 @@
-# Copyright (c) 2021, 2023, Oracle and/or its affiliates. All rights reserved.
-# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
-
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 locals {
   manifest_yaml = templatefile("${path.module}/manifests/genai_gateway.Deployment.template.yaml", {

@@ -1,4 +1,4 @@
-## Copyright © 2022, Oracle and/or its affiliates. 
+## Copyright © 2022-2026, Oracle and/or its affiliates.
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 resource "tls_private_key" "public_private_key_pair" {
@@ -123,7 +123,7 @@ resource "oci_containerengine_node_pool" "oci_oke_node_pool" {
     }
 
     node_pool_pod_network_option_details {
-      cni_type = "OCI_VCN_IP_NATIVE"
+      cni_type       = "OCI_VCN_IP_NATIVE"
       pod_subnet_ids = [var.use_existing_vcn ? local.node_pools[count.index]["subnet"] : oci_core_subnet.oke_nodepool_subnet[0].id]
     }
     size         = local.node_pools[count.index]["node_count"]

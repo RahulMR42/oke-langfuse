@@ -1,3 +1,5 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 # resource "oci_devops_deploy_artifact" "cluster_issuer_manifest_tls" {
 #   argument_substitution_mode = "SUBSTITUTE_PLACEHOLDERS"
@@ -34,9 +36,9 @@ resource "oci_devops_deploy_artifact" "load_balancer_manifest_tls" {
 resource "oci_devops_deploy_pipeline" "ingress_tls" {
   deploy_pipeline_parameters {
     items {
-      name = "LANGFUSE_HOSTNAME"
+      name          = "LANGFUSE_HOSTNAME"
       default_value = var.langfuse_hostname
-      description = "The hostname (IP) for the Langfuse instance"
+      description   = "The hostname (IP) for the Langfuse instance"
     }
   }
   description  = "Langfuse Ingress"

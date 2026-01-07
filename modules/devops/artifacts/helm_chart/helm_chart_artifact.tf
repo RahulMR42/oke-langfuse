@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 # Artifacts: DevOps project artifacts
 resource "oci_devops_deploy_artifact" "helm_chart" {
   argument_substitution_mode = var.argument_substitution_mode

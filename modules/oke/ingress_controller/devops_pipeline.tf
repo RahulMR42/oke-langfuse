@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 resource "oci_artifacts_repository" "nginx_ingress_controller_manifest_repository" {
   compartment_id  = var.compartment_id
   display_name    = "nginx_ingress_controller_manifest_repo"
@@ -22,7 +25,7 @@ resource "oci_generic_artifacts_content_artifact_by_path" "nginx_ingress_control
 
 }
 resource "oci_devops_deploy_artifact" "nginx_ingress_controller_manifest" {
-argument_substitution_mode = "SUBSTITUTE_PLACEHOLDERS"
+  argument_substitution_mode = "SUBSTITUTE_PLACEHOLDERS"
   deploy_artifact_source {
     #Required
     deploy_artifact_source_type = "GENERIC_ARTIFACT"

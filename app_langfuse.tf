@@ -1,5 +1,6 @@
-## Copyright © 2022-2026, Oracle and/or its affiliates. 
+## Copyright © 2022-2026, Oracle and/or its affiliates.
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 ## Install Langfuse dependencies
 # Postgres
 module "langfuse_postgres" {
@@ -66,10 +67,10 @@ locals {
 
 # Build Langfuse patched container image
 module "build_langfuse_image" {
-  source                      = "./modules/apps/langfuse/build_image"
-  builder_details             = module.builder_instance.details
+  source          = "./modules/apps/langfuse/build_image"
+  builder_details = module.builder_instance.details
 
-  depends_on = [ 
+  depends_on = [
     module.builder_instance,
     null_resource.builder_setup
   ]
@@ -124,10 +125,10 @@ output "langfuse_url" {
 
 # Ingress allows automation of TLS certs creation for the LB using let's encrypt
 module "langfuse_ingress_tls" {
-  source            = "./modules/apps/langfuse/ingress_tls"
-  langfuse_hostname = module.nginx_ingress_controller.ip_address
-  builder_details   = module.builder_instance.details
-  devops_project_id = module.devops_setup.project_id
+  source                = "./modules/apps/langfuse/ingress_tls"
+  langfuse_hostname     = module.nginx_ingress_controller.ip_address
+  builder_details       = module.builder_instance.details
+  devops_project_id     = module.devops_setup.project_id
   devops_environment_id = module.devops_target_cluster_env.environment_id
 
   depends_on = [

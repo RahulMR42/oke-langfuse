@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 locals {
   nodes = [for k, v in var.autoscaler_pool_settings : try(lookup(v, "autoscale", false), false) ? "--nodes=${try(lookup(v, "min_nodes", 0), 0)}:${try(lookup(v, "max_nodes", 499), 499)}:${try(lookup(v, "id", ""), "")}" : ""]
   env_dyngroup = {

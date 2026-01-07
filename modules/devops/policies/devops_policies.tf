@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 locals {
   devops_policy_statements = [
     "allow any-user to use ons-topic in compartment id ${var.devops_compartment_id} where all {request.principal.type = 'devopsdeploypipeline', target.compartment.id = '${var.devops_compartment_id}'}",

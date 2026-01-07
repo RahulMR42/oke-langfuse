@@ -1,4 +1,7 @@
-# deplys the OCI Gen AI Gateway project that provides an OpenAI compatible API endpoint for OCI Gen AI service
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
+# deploys the OCI Gen AI Gateway project that provides an OpenAI compatible API endpoint for OCI Gen AI service
 # needed to use evaluation features of LangFuse.
 module "oci_genai_gateway" {
   source            = "./modules/apps/oci_genai_gateway"

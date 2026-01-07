@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 module "bastion" {
   count                                = var.is_endpoint_public ? 0 : 1
   source                               = "./modules/compute/bastion"

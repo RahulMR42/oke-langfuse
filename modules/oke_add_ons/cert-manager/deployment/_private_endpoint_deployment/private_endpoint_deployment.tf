@@ -1,3 +1,6 @@
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
 # for a private endpoint deployment, several things are required:
 # - a DevOps project configured with an environment to connect to the cluster
 # - proper permissions for the devops resources to be able to read artifacts and deploy them on the cluster

@@ -1,5 +1,5 @@
-# Copyright (c) 2021, 2024, Oracle and/or its affiliates. All rights reserved.
-# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+## Copyright © 2022-2026, Oracle and/or its affiliates.
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 ## This file deploys cluster-autoscaler if needed or requested, using the appropriate method depending on the type of cluster
 ## Enhanced Cluster use the add-on manager to deploy the add-on; it is managed by OKE
