@@ -53,7 +53,7 @@ module "langfuse_idcs_app" {
   source             = "./modules/iam/idcs_app"
   identity_domain_id = var.identity_domain_id
   display_name       = local.cluster_name_sanitized
-  redirect_url       = "https://${module.nginx_ingress_controller.ip_address}/langfuse/api/auth/callback/custom"
+  redirect_url       = "https://${local.langfuse_url}/langfuse/api/auth/callback/custom"
 }
 
 
@@ -76,6 +76,18 @@ module "build_langfuse_image" {
   ]
 }
 
+module "oci_native_ingress_class" {
+  source          = "./modules/apps/langfuse/oci_native_ingress_class"
+  builder_details = module.builder_instance.details
+  compartment_id  = var.cluster_compartment_id
+  cluster_id      = oci_containerengine_cluster.oci_oke_cluster.id
+  deploy_id       = local.deploy_id
+
+  depends_on = [
+    module.builder_instance,
+    null_resource.builder_setup
+  ]
+}
 
 # Create the Langfuse secrets and deploy the helm chart
 # The chart is deployed via DevOps pipeline, although secrets are deployed via remote-exec command to avoid storing credentials
@@ -105,12 +117,13 @@ module "langfuse_chart" {
   object_storage_bucket       = local.object_storage_bucket
   deploy_id                   = local.deploy_id
   langfuse_helm_chart_version = var.langfuse_helm_chart_version
-  langfuse_hostname           = module.nginx_ingress_controller.ip_address
+  langfuse_hostname           = local.langfuse_url
 
 
   depends_on = [
     module.langfuse_idcs_app,
-    module.nginx_ingress_controller,
+    # module.nginx_ingress_controller,
+    module.native_ingress_deployment_using_addon_manager,
     module.langfuse_postgres,
     module.langfuse_redis,
     oci_objectstorage_bucket.langfuse_bucket,
@@ -119,14 +132,19 @@ module "langfuse_chart" {
   ]
 }
 
+locals {
+  # langfuse_url = module.nginx_ingress_controller.ip_address
+  langfuse_url = module.oci_native_ingress_class.ip_address
+}
+
 output "langfuse_url" {
-  value = "https://${module.nginx_ingress_controller.ip_address}/langfuse"
+  value = "https://${local.langfuse_url}/langfuse"
 }
 
 # Ingress allows automation of TLS certs creation for the LB using let's encrypt
 module "langfuse_ingress_tls" {
   source                = "./modules/apps/langfuse/ingress_tls"
-  langfuse_hostname     = module.nginx_ingress_controller.ip_address
+  langfuse_hostname     = local.langfuse_url
   builder_details       = module.builder_instance.details
   devops_project_id     = module.devops_setup.project_id
   devops_environment_id = module.devops_target_cluster_env.environment_id
@@ -135,7 +153,8 @@ module "langfuse_ingress_tls" {
     null_resource.builder_setup,
     oci_containerengine_node_pool.oci_oke_node_pool,
     module.cert_manager_deployment_using_addon_manager,
-    module.nginx_ingress_controller,
+    # module.nginx_ingress_controller,
+    module.native_ingress_deployment_using_addon_manager,
     module.langfuse_chart
   ]
 }

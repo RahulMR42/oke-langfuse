@@ -82,7 +82,8 @@ module "policies" {
   description    = "Policies for ${local.cluster_name}"
   policy_statements = concat(
     module.nsg_based_policies.policy_statements,
-    module.cluster_autoscaler_workload_identity_policy.policy_statements
+    module.cluster_autoscaler_workload_identity_policy.policy_statements,
+    module.native_ingress_workload_identity_policy.policy_statements
   )
   providers = {
     oci = oci.home_region

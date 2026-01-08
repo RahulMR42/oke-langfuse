@@ -353,6 +353,51 @@ resource "oci_core_security_list" "oke_nodepool_lb_comm_sec_list" {
   }
 }
 
+
+resource "oci_core_security_list" "oke_lb_sec_list" {
+  count          = var.use_existing_vcn ? 0 : 1
+  compartment_id = var.vcn_compartment_id
+  display_name   = "Internet - Load Balancer Comm"
+  vcn_id         = oci_core_vcn.oke_vcn[0].id
+  defined_tags   = var.vcn_tags
+
+  egress_security_rules {
+    # iterator = cidr
+    # for_each = local.lb_subnets_cidrs
+    # content {
+    description      = "TCP to LBs"
+    protocol         = "6"
+    destination_type = "CIDR_BLOCK"
+    destination      = "0.0.0.0/0"
+    stateless        = false
+    # }
+  }
+
+  ingress_security_rules {
+    description = "TCP to LBs"
+    protocol    = "6"
+    source      = "0.0.0.0/0"
+    stateless   = false
+
+    tcp_options {
+      min = 80
+      max = 80
+    }
+  }
+
+  ingress_security_rules {
+    description = "TCP to LBs"
+    protocol    = "6"
+    source      = "0.0.0.0/0"
+    stateless   = false
+
+    tcp_options {
+      min = 443
+      max = 443
+    }
+  }
+}
+
 resource "oci_core_subnet" "oke_api_endpoint_subnet" {
   count          = var.use_existing_vcn ? 0 : 1
   cidr_block     = local.api_subnet_cidr
@@ -379,7 +424,7 @@ resource "oci_core_subnet" "oke_lb_subnet" {
   dns_label           = "lb"
   display_name        = "Services LBs Subnet"
 
-  security_list_ids          = [oci_core_vcn.oke_vcn[0].default_security_list_id]
+  security_list_ids          = [oci_core_vcn.oke_vcn[0].default_security_list_id, oci_core_security_list.oke_lb_sec_list[0].id]
   route_table_id             = oci_core_route_table.oke_rt_via_igw[0].id
   prohibit_public_ip_on_vnic = !var.allow_deploy_public_lb
   defined_tags               = var.vcn_tags

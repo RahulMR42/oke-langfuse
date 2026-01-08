@@ -2,18 +2,16 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    # add an annotation indicating the issuer to use.
-    # oci.oraclecloud.com/load-balancer-type: "lb"
-    # oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
-    # oci.oraclecloud.com/initial-freeform-tags-override: '{"source": "langfuse"}'
-    # service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
-    # service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "100"
-    # service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "2000"
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: "oci-native-ingress"
+    oci-native-ingress.oraclecloud.com/freeform-tags: '{"source": "oci-native-ingress"}'
+    oci-native-ingress.oraclecloud.com/policy: "IP_HASH"
+    oci-native-ingress.oraclecloud.com/http-listener-port: "80"
+    oci-native-ingress.oraclecloud.com/https-listener-port: "443"
   name: langfuse-ingress
   namespace: langfuse
 spec:
-  ingressClassName: nginx
+  ingressClassName: oci-native-ingress
   rules:
   - http:
       paths:
