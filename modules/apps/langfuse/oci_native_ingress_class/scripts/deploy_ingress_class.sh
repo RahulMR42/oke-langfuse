@@ -18,4 +18,5 @@ cat oci_native_ingress_class_filled.yaml
 
 kubectl apply -f oci_native_ingress_class_filled.yaml
 
+# need to wait for the LB to be deployed
 sleep 120

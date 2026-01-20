@@ -8,12 +8,14 @@ metadata:
     oci-native-ingress.oraclecloud.com/policy: "IP_HASH"
     oci-native-ingress.oraclecloud.com/http-listener-port: "80"
     oci-native-ingress.oraclecloud.com/https-listener-port: "443"
+    oci-native-ingress.oraclecloud.com/backend-tls-enabled: "false"
   name: langfuse-ingress
   namespace: langfuse
 spec:
   ingressClassName: oci-native-ingress
   rules:
-  - http:
+  - host: ${LANGFUSE_HOSTNAME}
+    http:
       paths:
       - pathType: Prefix
         path: /

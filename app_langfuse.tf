@@ -62,7 +62,6 @@ locals {
   idcs_client_id     = var.create_idcs_app ? module.langfuse_idcs_app[0].details.client_id : var.idcs_client_id
   idcs_client_secret = var.create_idcs_app ? module.langfuse_idcs_app[0].details.client_secret : var.idcs_client_secret
   idcs_domain_url    = var.create_idcs_app ? module.langfuse_idcs_app[0].details.domain_url : var.idcs_domain_url
-
 }
 
 # Build Langfuse patched container image
@@ -134,7 +133,8 @@ module "langfuse_chart" {
 
 locals {
   # langfuse_url = module.nginx_ingress_controller.ip_address
-  langfuse_url = module.oci_native_ingress_class.ip_address
+  langfuse_web_ip = module.oci_native_ingress_class.ip_address
+  langfuse_url = "${replace(local.langfuse_web_ip, ".", "-")}.nip.io"
 }
 
 output "langfuse_url" {

@@ -11,7 +11,7 @@ variable "cluster_id" {
   type = string
 }
 
-variable "cert_manager_version" {
+variable "native_ingress_version" {
   type    = string
   default = null
 }

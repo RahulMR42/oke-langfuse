@@ -39,5 +39,5 @@ resource "oci_containerengine_addon" "native_ingress_addon" {
       value = configurations.value.value
     }
   }
-  version = var.cert_manager_version
+  version = null
 }

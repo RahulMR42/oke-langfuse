@@ -103,3 +103,14 @@ terraform apply
 
 [magic_button]: https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg
 [magic_oke_langfuse_stack]: https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/streamnsight/oke-langfuse/releases/latest/download/oke-langfuse.zip
+
+
+# TODO
+
+- refactor to use deploy shell stage instead of builder instance: 
+    - gateway
+    - manifests dependent on CRDs that fail on manifest deploy stage
+    - web image
+- offer choice of self signed cert, nip.io or domain name for TLS
+- look into OSS native client using workload identity
+- debug policies for deployment across compartment (devops, cluster, vcn)
