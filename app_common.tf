@@ -88,7 +88,7 @@ resource "null_resource" "terminate_builder_instance" {
   depends_on = [
     module.oci_genai_gateway,
     module.langfuse_chart,
-    module.langfuse_ingress_tls,
+    # module.langfuse_ingress_tls,
   ]
 }
 

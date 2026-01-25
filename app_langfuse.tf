@@ -75,16 +75,17 @@ module "build_langfuse_image" {
   ]
 }
 
-module "oci_native_ingress_class" {
-  source          = "./modules/apps/langfuse/oci_native_ingress_class"
-  builder_details = module.builder_instance.details
-  compartment_id  = var.cluster_compartment_id
-  cluster_id      = oci_containerengine_cluster.oci_oke_cluster.id
-  deploy_id       = local.deploy_id
-
+# deploy the load balancer
+module "langfuse_gateway" {
+  source                = "./modules/apps/langfuse/gateway"
+  compartment_id        = var.cluster_compartment_id
+  cluster_id            = oci_containerengine_cluster.oci_oke_cluster.id
+  subnet_id             = oci_containerengine_cluster.oci_oke_cluster.endpoint_config[0].subnet_id
+  devops_project_id     = module.devops_setup.project_id
+  devops_environment_id = module.devops_target_cluster_env.environment_id
   depends_on = [
-    module.builder_instance,
-    null_resource.builder_setup
+    module.istio_deployment_using_addon_manager,
+    module.istio_gateway_class
   ]
 }
 
@@ -122,7 +123,9 @@ module "langfuse_chart" {
   depends_on = [
     module.langfuse_idcs_app,
     # module.nginx_ingress_controller,
-    module.native_ingress_deployment_using_addon_manager,
+    module.istio_deployment_using_addon_manager,
+    module.istio_gateway_class,
+    module.langfuse_gateway,
     module.langfuse_postgres,
     module.langfuse_redis,
     oci_objectstorage_bucket.langfuse_bucket,
@@ -132,9 +135,9 @@ module "langfuse_chart" {
 }
 
 locals {
-  # langfuse_url = module.nginx_ingress_controller.ip_address
-  langfuse_web_ip = module.oci_native_ingress_class.ip_address
-  langfuse_url = "${replace(local.langfuse_web_ip, ".", "-")}.nip.io"
+  # langfuse_url via Traefik Gateway Load Balancer
+  langfuse_web_ip = module.langfuse_gateway.ip_address
+  langfuse_url    = "${replace(local.langfuse_web_ip, ".", "-")}.nip.io"
 }
 
 output "langfuse_url" {
@@ -142,19 +145,18 @@ output "langfuse_url" {
 }
 
 # Ingress allows automation of TLS certs creation for the LB using let's encrypt
-module "langfuse_ingress_tls" {
-  source                = "./modules/apps/langfuse/ingress_tls"
-  langfuse_hostname     = local.langfuse_url
-  builder_details       = module.builder_instance.details
+module "langfuse_gateway_routing" {
+  source                = "./modules/apps/langfuse/gateway_routing"
+  compartment_id        = var.cluster_compartment_id
+  cluster_id            = oci_containerengine_cluster.oci_oke_cluster.id
   devops_project_id     = module.devops_setup.project_id
   devops_environment_id = module.devops_target_cluster_env.environment_id
+  langfuse_hostname     = local.langfuse_url
+  defined_tags          = var.defined_tags
 
   depends_on = [
-    null_resource.builder_setup,
-    oci_containerengine_node_pool.oci_oke_node_pool,
     module.cert_manager_deployment_using_addon_manager,
-    # module.nginx_ingress_controller,
-    module.native_ingress_deployment_using_addon_manager,
+    module.istio_deployment_using_addon_manager,
     module.langfuse_chart
   ]
 }

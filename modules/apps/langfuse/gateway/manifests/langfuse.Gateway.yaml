@@ -1,0 +1,28 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: langfuse-gateway
+  namespace: langfuse
+spec:
+  gatewayClassName: istio
+  infrastructure:
+    annotations:
+      oci.oraclecloud.com/initial-freeform-tags-override: '{"source": "istio-gateway"}'
+      oci.oraclecloud.com/load-balancer-type: "lb"
+      service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+      service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "100"
+      service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "500"
+  listeners:
+  - name: http
+    # hostname: "*"
+    port: 80
+    protocol: HTTP
+  - name: https
+    # hostname: "*"
+    port: 443
+    protocol: HTTPS
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: langfuse-web-ssl-certificate-secret
