@@ -6,7 +6,7 @@ data "oci_load_balancer_load_balancers" "load_balancers" {
   compartment_id = var.compartment_id
 
   #Optional
-  detail = "full"
+  detail       = "full"
   display_name = "lb-${var.deploy_id}"
 
   depends_on = [null_resource.deploy_oci_native_ingress_class]
