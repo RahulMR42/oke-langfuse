@@ -12,8 +12,8 @@ module "istio_deployment_using_addon_manager" {
   ]
 }
 
-module "istio_gateway_class" {
-  source                = "./modules/oke/istio_gateway_class"
+module "istio_gateway_crds" {
+  source                = "./modules/oke/istio_gateway_crds"
   compartment_id        = local.devops_compartment_id
   cluster_id            = oci_containerengine_cluster.oci_oke_cluster.id
   devops_project_id     = module.devops_setup.project_id

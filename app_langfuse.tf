@@ -85,7 +85,7 @@ module "langfuse_gateway" {
   devops_environment_id = module.devops_target_cluster_env.environment_id
   depends_on = [
     module.istio_deployment_using_addon_manager,
-    module.istio_gateway_class
+    module.istio_gateway_crds
   ]
 }
 
@@ -124,7 +124,7 @@ module "langfuse_chart" {
     module.langfuse_idcs_app,
     # module.nginx_ingress_controller,
     module.istio_deployment_using_addon_manager,
-    module.istio_gateway_class,
+    module.istio_gateway_crds,
     module.langfuse_gateway,
     module.langfuse_postgres,
     module.langfuse_redis,
