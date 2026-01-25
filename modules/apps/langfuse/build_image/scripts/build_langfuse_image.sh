@@ -40,8 +40,29 @@ pushd langfuse
 # get app version from chart version
 export LANGFUSE_VERSION=$(helm show chart langfuse/langfuse --version ${HELM_CHART_VERSION} | grep appVersion | awk '{print $2}')
 
+
+export VERSION=${LANGFUSE_VERSION:-latest}
+
+## Get registry repo token and docker login again to the repo as token may have expried by then
+oci --auth instance_principal raw-request --http-method GET --target-uri https://${REGION}.ocir.io/20180419/docker/token | jq -r .data.token | podman login ${REGION}.ocir.io -u BEARER_TOKEN --password-stdin
+
+## Check if repo exists or create it
+podman manifest inspect ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse \
+|| oci --auth instance_principal artifacts container repository create \
+    --compartment-id ${COMPARTMENT_ID} \
+    --display-name ${DEPLOY_ID}/langfuse \
+    --is-public false \
+|| echo "already exists"
+
+
+if podman manifest inspect ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse:${VERSION} > /dev/null 2>&1; then
+    echo "Image found in the remote repository. Exiting script..."
+    exit 0 # Exit with 0 as requested by user if true
+fi
+
 # checkout latest tag branch
 git checkout "v${LANGFUSE_VERSION}"
+
 
 ## patch Langfuse for IDCS. That requires installing the JS dependencies, patching and updating the lock file
 
@@ -76,21 +97,6 @@ pnpm update
 
 # clean up the node_modules
 rm -rf node_modules
-
-export VERSION=${LANGFUSE_VERSION:-latest}
-
-## push image to repo
-## Get registry repo token and docker login again to the repo as token may have expried by then
-oci --auth instance_principal raw-request --http-method GET --target-uri https://${REGION}.ocir.io/20180419/docker/token | jq -r .data.token | podman login ${REGION}.ocir.io -u BEARER_TOKEN --password-stdin
-
-
-## Check if repo exists or create it
-podman manifest inspect ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse \
-|| oci --auth instance_principal artifacts container repository create \
-    --compartment-id ${COMPARTMENT_ID} \
-    --display-name ${DEPLOY_ID}/langfuse \
-    --is-public false \
-|| echo "already exists"
 
 # build and publish the LangFuse container image
 podman build --ulimit=nofile=65535:65535 --platform=${PLATFORM} --shm-size=10G -t ${REGION}.ocir.io/${TENANCY_NAMESPACE}/${DEPLOY_ID}/langfuse:${VERSION} --build-arg NEXT_PUBLIC_BASE_PATH=/langfuse -f ./web/Dockerfile .
