@@ -6,7 +6,7 @@ metadata:
   namespace: langfuse
 spec:
   parentRefs:
-  - name: langfuse
+  - name: langfuse-gateway
     sectionName: https
   hostnames:
   - ${LANGFUSE_HOSTNAME}
@@ -29,5 +29,5 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  dnsNames:
+  ipAddresses:
   - ${LANGFUSE_HOSTNAME}

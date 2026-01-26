@@ -23,3 +23,7 @@ variable "cluster_id" {
 variable "langfuse_hostname" {
   type = string
 }
+
+variable "subnet_id" {
+  type = string
+}

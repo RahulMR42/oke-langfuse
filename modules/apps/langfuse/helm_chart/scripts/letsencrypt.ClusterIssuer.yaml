@@ -13,11 +13,18 @@ spec:
     - http01:
         gatewayHTTPRoute:
           parentRefs:
-          - name: langfuse
+          - name: langfuse-gateway
             namespace: langfuse
             sectionName: http
+            kind: Gateway
           labels:
             acme.cert-manager.io/http01-solver: "true"
+          serviceType: ClusterIP
+          # podTemplate:
+          #   metadata:
+          #     annotations:
+          #       oci-native-ingress.oraclecloud.com/http-listener-port: "80"
+          #       oci-native-ingress.oraclecloud.com/https-listener-port: "443"
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -34,8 +41,15 @@ spec:
     - http01:
         gatewayHTTPRoute:
           parentRefs:
-          - name: langfuse
+          - name: langfuse-gateway
             namespace: langfuse
             sectionName: http
+            kind: Gateway
           labels:
             acme.cert-manager.io/http01-solver: "true"
+          serviceType: ClusterIP
+          # podTemplate:
+          #   metadata:
+          #     annotations:
+          #       oci-native-ingress.oraclecloud.com/http-listener-port: "80"
+          #       oci-native-ingress.oraclecloud.com/https-listener-port: "443"

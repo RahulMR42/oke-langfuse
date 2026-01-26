@@ -87,6 +87,28 @@ resource "oci_devops_deploy_stage" "langfuse_gateway_routing" {
   defined_tags                      = var.defined_tags
   command_spec_deploy_artifact_id   = oci_devops_deploy_artifact.langfuse_gateway_routing_commandspec.id
   oke_cluster_deploy_environment_id = var.devops_environment_id
+  container_config {
+    #Required
+    container_config_type = "CONTAINER_INSTANCE_CONFIG"
+    network_channel {
+      #Required
+      network_channel_type = "SERVICE_VNIC_CHANNEL"
+      subnet_id            = var.subnet_id
+
+      #Optional
+      nsg_ids = []
+    }
+    shape_config {
+      #Required
+      ocpus = 2
+
+      #Optional
+      memory_in_gbs = 8
+    }
+    shape_name     = "CI.Standard.E4.Flex"
+    compartment_id = var.compartment_id
+  }
+
   rollback_policy { policy_type = "NO_STAGE_ROLLBACK_POLICY" }
   lifecycle { ignore_changes = [defined_tags] }
 }

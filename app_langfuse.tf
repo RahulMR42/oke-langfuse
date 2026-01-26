@@ -137,7 +137,7 @@ module "langfuse_chart" {
 locals {
   # langfuse_url via Traefik Gateway Load Balancer
   langfuse_web_ip = module.langfuse_gateway.ip_address
-  langfuse_url    = "${replace(local.langfuse_web_ip, ".", "-")}.nip.io"
+  langfuse_url    = local.langfuse_web_ip # "${replace(local.langfuse_web_ip, ".", "-")}.nip.io"
 }
 
 output "langfuse_url" {
@@ -149,6 +149,7 @@ module "langfuse_gateway_routing" {
   source                = "./modules/apps/langfuse/gateway_routing"
   compartment_id        = var.cluster_compartment_id
   cluster_id            = oci_containerengine_cluster.oci_oke_cluster.id
+  subnet_id             = oci_containerengine_cluster.oci_oke_cluster.endpoint_config[0].subnet_id
   devops_project_id     = module.devops_setup.project_id
   devops_environment_id = module.devops_target_cluster_env.environment_id
   langfuse_hostname     = local.langfuse_url
