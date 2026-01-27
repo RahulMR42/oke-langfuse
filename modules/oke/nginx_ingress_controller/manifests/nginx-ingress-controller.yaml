@@ -350,6 +350,8 @@ metadata:
     service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
     service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "100"
     service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "500"
+    oci-load-balancer.oraclecloud.com/health-check: '{"protocol": "HTTP", "port": 8080, "urlPath": "/healthz", "returnCode": 200, "retries": 2, "timeoutInMillis": 5000}'
+    oci.oraclecloud.com/security-rule-management-mode: "None"
 spec:
   externalTrafficPolicy: Local
   ipFamilies:
@@ -371,6 +373,7 @@ spec:
     app.kubernetes.io/instance: ingress-nginx
     app.kubernetes.io/name: ingress-nginx
   type: LoadBalancer
+  allocateLoadBalancerNodePorts: false # issue with vcn_native pod networking
 ---
 apiVersion: v1
 kind: Service

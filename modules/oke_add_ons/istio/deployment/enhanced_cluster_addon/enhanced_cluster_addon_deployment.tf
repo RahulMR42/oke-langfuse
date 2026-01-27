@@ -5,30 +5,12 @@ locals {
   configurations = [{
     key   = "numOfReplicas"
     value = var.nb_replicas
-    },
-    {
-      key   = "compartmentId"
-      value = var.compartment_id
-    },
-    {
-      key   = "loadBalancerSubnetId"
-      value = var.load_balancers_subnet_id
-    },
-    {
-      key   = "authType"
-      value = "workloadIdentity"
-    },
-    {
-      key   = "logVerbosity"
-      value = "2"
-    },
-
-  ]
+  }]
 }
-resource "oci_containerengine_addon" "native_ingress_addon" {
+resource "oci_containerengine_addon" "cert_manager_addon" {
   count = var.enabled ? 1 : 0
   #Required
-  addon_name                       = "NativeIngressController"
+  addon_name                       = "Istio"
   cluster_id                       = var.cluster_id
   remove_addon_resources_on_delete = true
 
@@ -39,5 +21,5 @@ resource "oci_containerengine_addon" "native_ingress_addon" {
       value = configurations.value.value
     }
   }
-  version = null
+  version = var.istio_version
 }

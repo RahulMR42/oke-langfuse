@@ -29,7 +29,7 @@ locals {
 ## For more granular permission, here we use a Network Security Group tied to the subnet of the worker nodes. 
 ## It still gives any VM in this subnet the permissions autoscaler gets.
 
-# create policies statements to use workload identity
+# define policies statements to use workload identity
 module "cluster_autoscaler_workload_identity_policy" {
   source               = "./modules/iam/workload_identity"
   compartment_id       = var.cluster_compartment_id

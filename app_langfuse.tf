@@ -53,7 +53,7 @@ module "langfuse_idcs_app" {
   source             = "./modules/iam/idcs_app"
   identity_domain_id = var.identity_domain_id
   display_name       = local.cluster_name_sanitized
-  redirect_url       = "https://${module.nginx_ingress_controller.ip_address}/langfuse/api/auth/callback/custom"
+  redirect_url       = "https://${local.langfuse_url}/langfuse/api/auth/callback/custom"
 }
 
 
@@ -62,7 +62,6 @@ locals {
   idcs_client_id     = var.create_idcs_app ? module.langfuse_idcs_app[0].details.client_id : var.idcs_client_id
   idcs_client_secret = var.create_idcs_app ? module.langfuse_idcs_app[0].details.client_secret : var.idcs_client_secret
   idcs_domain_url    = var.create_idcs_app ? module.langfuse_idcs_app[0].details.domain_url : var.idcs_domain_url
-
 }
 
 # Build Langfuse patched container image
@@ -76,6 +75,19 @@ module "build_langfuse_image" {
   ]
 }
 
+# deploy the load balancer
+module "langfuse_gateway" {
+  source                = "./modules/apps/langfuse/gateway"
+  compartment_id        = var.cluster_compartment_id
+  cluster_id            = oci_containerengine_cluster.oci_oke_cluster.id
+  subnet_id             = oci_containerengine_cluster.oci_oke_cluster.endpoint_config[0].subnet_id
+  devops_project_id     = module.devops_setup.project_id
+  devops_environment_id = module.devops_target_cluster_env.environment_id
+  depends_on = [
+    module.istio_deployment_using_addon_manager,
+    module.istio_gateway_crds
+  ]
+}
 
 # Create the Langfuse secrets and deploy the helm chart
 # The chart is deployed via DevOps pipeline, although secrets are deployed via remote-exec command to avoid storing credentials
@@ -105,12 +117,15 @@ module "langfuse_chart" {
   object_storage_bucket       = local.object_storage_bucket
   deploy_id                   = local.deploy_id
   langfuse_helm_chart_version = var.langfuse_helm_chart_version
-  langfuse_hostname           = module.nginx_ingress_controller.ip_address
+  langfuse_hostname           = local.langfuse_url
 
 
   depends_on = [
     module.langfuse_idcs_app,
-    module.nginx_ingress_controller,
+    # module.nginx_ingress_controller,
+    module.istio_deployment_using_addon_manager,
+    module.istio_gateway_crds,
+    module.langfuse_gateway,
     module.langfuse_postgres,
     module.langfuse_redis,
     oci_objectstorage_bucket.langfuse_bucket,
@@ -119,23 +134,30 @@ module "langfuse_chart" {
   ]
 }
 
+locals {
+  # langfuse_url via Traefik Gateway Load Balancer
+  langfuse_web_ip = module.langfuse_gateway.ip_address
+  langfuse_url    = local.langfuse_web_ip # "${replace(local.langfuse_web_ip, ".", "-")}.nip.io"
+}
+
 output "langfuse_url" {
-  value = "https://${module.nginx_ingress_controller.ip_address}/langfuse"
+  value = "https://${local.langfuse_url}/langfuse"
 }
 
 # Ingress allows automation of TLS certs creation for the LB using let's encrypt
-module "langfuse_ingress_tls" {
-  source                = "./modules/apps/langfuse/ingress_tls"
-  langfuse_hostname     = module.nginx_ingress_controller.ip_address
-  builder_details       = module.builder_instance.details
+module "langfuse_gateway_routing" {
+  source                = "./modules/apps/langfuse/gateway_routing"
+  compartment_id        = var.cluster_compartment_id
+  cluster_id            = oci_containerengine_cluster.oci_oke_cluster.id
+  subnet_id             = oci_containerengine_cluster.oci_oke_cluster.endpoint_config[0].subnet_id
   devops_project_id     = module.devops_setup.project_id
   devops_environment_id = module.devops_target_cluster_env.environment_id
+  langfuse_hostname     = local.langfuse_url
+  defined_tags          = var.defined_tags
 
   depends_on = [
-    null_resource.builder_setup,
-    oci_containerengine_node_pool.oci_oke_node_pool,
     module.cert_manager_deployment_using_addon_manager,
-    module.nginx_ingress_controller,
+    module.istio_deployment_using_addon_manager,
     module.langfuse_chart
   ]
 }

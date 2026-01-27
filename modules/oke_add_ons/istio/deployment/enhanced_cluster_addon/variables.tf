@@ -11,7 +11,7 @@ variable "cluster_id" {
   type = string
 }
 
-variable "native_ingress_version" {
+variable "istio_version" {
   type    = string
   default = null
 }
@@ -19,12 +19,4 @@ variable "native_ingress_version" {
 variable "nb_replicas" {
   type    = string
   default = 1
-}
-
-variable "compartment_id" {
-  type = string
-}
-
-variable "load_balancers_subnet_id" {
-  type = string
 }

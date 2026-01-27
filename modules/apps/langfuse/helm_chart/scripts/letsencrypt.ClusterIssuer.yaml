@@ -2,7 +2,6 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata: 
   name: letsencrypt-staging
-  # namespace: cert-manager
 spec:
   acme:
     # profile, shortlived to be able to provision IP certs
@@ -12,14 +11,25 @@ spec:
       name: letsencrypt-issuer-staging-account-key
     solvers: 
     - http01:
-        ingress:
-          ingressClassName: nginx
+        gatewayHTTPRoute:
+          parentRefs:
+          - name: langfuse-gateway
+            namespace: langfuse
+            sectionName: http
+            kind: Gateway
+          labels:
+            acme.cert-manager.io/http01-solver: "true"
+          serviceType: ClusterIP
+          # podTemplate:
+          #   metadata:
+          #     annotations:
+          #       oci-native-ingress.oraclecloud.com/http-listener-port: "80"
+          #       oci-native-ingress.oraclecloud.com/https-listener-port: "443"
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata: 
   name: letsencrypt-prod
-  # namespace: cert-manager
 spec:
   acme:
     # profile, shortlived to be able to provision IP certs
@@ -29,5 +39,17 @@ spec:
       name: letsencrypt-issuer-prod-account-key
     solvers: 
     - http01:
-        ingress:
-          ingressClassName: nginx
+        gatewayHTTPRoute:
+          parentRefs:
+          - name: langfuse-gateway
+            namespace: langfuse
+            sectionName: http
+            kind: Gateway
+          labels:
+            acme.cert-manager.io/http01-solver: "true"
+          serviceType: ClusterIP
+          # podTemplate:
+          #   metadata:
+          #     annotations:
+          #       oci-native-ingress.oraclecloud.com/http-listener-port: "80"
+          #       oci-native-ingress.oraclecloud.com/https-listener-port: "443"

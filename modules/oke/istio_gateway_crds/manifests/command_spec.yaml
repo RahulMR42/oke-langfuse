@@ -1,0 +1,50 @@
+version: 0.1
+component: command
+timeoutInSeconds: 10000
+shell: bash
+failImmediatelyOnError: true
+# inputArtifacts:
+# - name: istio-gateway-class-manifest
+#   type: GENERIC_ARTIFACT
+#   artifactId: ${ARTIFACT_OCID}
+#   registryId: ${REGISTRY_OCID}
+#   path: istio.GatewayClass.yaml
+#   version: 0.1.0
+#   location: ./istio.GatewayClass.yaml
+steps:
+  - type: Command
+    name: Prepare namespace and wait for CRDs
+    timeoutInSeconds: 600
+    command: |
+      set -euo pipefail
+      NAMESPACE=istio-system
+      echo "${CLUSTER_OCID}"
+      oci ce cluster create-kubeconfig --cluster-id ${CLUSTER_OCID} --file $HOME/.kube/config --token-version 2.0.0  --kube-endpoint PRIVATE_ENDPOINT
+      kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.1/standard-install.yaml
+      kubectl get ns "istio-system" >/dev/null 2>&1 || kubectl create ns "istio-system"
+      echo "Waiting for Gateway API CRDs to be present..."
+      for crd in gateways.gateway.networking.k8s.io httproutes.gateway.networking.k8s.io; do
+        for i in $(seq 1 60); do
+          if kubectl get crd "$crd" >/dev/null 2>&1; then
+            echo "CRD $crd is present"
+            break
+          fi
+          echo "CRD $crd not found yet. Retrying in 5s ($i/60)..."
+          sleep 5
+        done
+      done
+  # - type: Command
+  #   name: Apply GatewayClass manifest
+  #   timeoutInSeconds: 600
+  #   command: |
+  #     set -euo pipefail
+  #     echo "Applying GatewayClass manifest..."
+  #     echo "${CLUSTER_OCID}"
+  #     oci ce cluster create-kubeconfig --cluster-id ${CLUSTER_OCID} --file $HOME/.kube/config --token-version 2.0.0  --kube-endpoint PRIVATE_ENDPOINT
+  #     kubectl apply -f ./istio.GatewayClass.yaml -n istio-system
+  # - type: Command
+  #   name: Wait for Gateway readiness
+  #   timeoutInSeconds: 600
+  #   command: |
+  #     set -euo pipefail
+  #     # kubectl wait --namespace langfuse --for=condition=Programmed --timeout=300s gateway/istio-gateway-class || true
