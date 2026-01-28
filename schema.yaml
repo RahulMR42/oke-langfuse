@@ -1148,7 +1148,7 @@ variables:
   langfuse_s3_access_key:
     type: string
     title: Langfuse S3 Compatible Object Storage Access Key
-    description: S3 access key to use for Langfuse object storage. Fetch  one from User -> Secret and Keys -> Customer Secret Key -> Copy the generated key
+    description: S3 access key to use for Langfuse object storage. Fetch  one from User settings -> Tokens and keys -> Customer secret keys -> Copy the generated key
     sensitive: true
     required: true
 
