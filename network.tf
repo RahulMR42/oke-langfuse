@@ -11,7 +11,7 @@ locals {
 
 data "oci_core_vcn" "existing_vcn" {
   #data resource to fetch existing VCN's attributes if used.
-  count = var.use_existing_vcn ? 1 : 0
+  count  = var.use_existing_vcn ? 1 : 0
   vcn_id = var.vcn_id
 }
 
